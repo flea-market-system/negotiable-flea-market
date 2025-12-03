@@ -1,2 +1,2 @@
-INSERT INTO users (username, password, role)
-VALUES ('admin', '{bcrypt hashed password}', 'ADMIN');
+INSERT INTO users (name, email, password, role )
+VALUES ('admin', 'admin@example.com', '{bcrypt hashed password}', 'ADMIN');
