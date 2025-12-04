@@ -15,24 +15,35 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+
 @Data
+@Table(name = "apporder") //Table名と一致しているか確認したい。
 @AllArgsConstructor
 @NoArgsConstructor
-@jakarta.persistence.Table(name = "apporder")
-public class Order {
+public class AppOrder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(nullable = false)
-	private BigDecimal price;
-	@Column(nullable = false)
-	private String status;
+	
 	@ManyToOne
-	@JoinColumn(name = "item_id")
+	@JoinColumn(name = "item_id", nullable = false)
 	private Item item;
 
 	@ManyToOne
-	@JoinColumn(name = "buyer_id")
+	@JoinColumn(name = "buyer_id", nullable = false)
 	private Users buyer;
-
+	
+	@Column(nullable = false)
+	private BigDecimal price;
+	
+	@Column(nullable = false)
+	private String status = "購入済み"; //初期値
+	
+	// 追加: Stripe の PaymentIntent ID を保持(決済と注文を 1 対 1 で特定) 
+	@Column(name = "payment_intent_id", unique = true)
+	private String paymentIntentId;
+	
+	// 追加: 作成日時(集計用)
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime createdAt = LocalDateTime.now();
 }
