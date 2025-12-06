@@ -27,7 +27,7 @@ public class Item {
 	
 	@ManyToOne
 	@JoinColumn(name = "users_id", nullable = false)
-	private Users seller; //usersテーブルへの外部キー。出品者だとわかりやすいようにsellerという名前。
+	private Users seller; //　usersテーブルへの外部キー。出品者だとわかりやすいようにsellerという名前。
 	
 	@Column(nullable = false)
 	private String name;
@@ -42,7 +42,7 @@ public class Item {
 	@JoinColumn(name = "category_id")
 	private Category category;
 	
-	private String status = "出品中"; //デフォルトの値。値の変更はロジック側で行う。
+	private String status = "出品中"; //　デフォルトの値。値の変更はロジック側で行う。
 	
 	// 追加: 画像 URL(Cloudinary にアップロードした結果を格納) 
 	// For image URLs (Cloudinary)

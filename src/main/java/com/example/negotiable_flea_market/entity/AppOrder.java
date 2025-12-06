@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 
 @Data
-@Table(name = "apporder") //Table名と一致しているか確認したい。
+@Table(name = "app_order")
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppOrder {
@@ -37,13 +37,13 @@ public class AppOrder {
 	private BigDecimal price;
 	
 	@Column(nullable = false)
-	private String status = "購入済み"; //初期値
+	private String status = "購入済"; // 初期値
+
+	// 追加: 作成日時(集計用)
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime createdAt // 変更: 初期値を消した。schemaの方にのみ記載
 	
 	// 追加: Stripe の PaymentIntent ID を保持(決済と注文を 1 対 1 で特定) 
 	@Column(name = "payment_intent_id", unique = true)
 	private String paymentIntentId;
-	
-	// 追加: 作成日時(集計用)
-	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
 }

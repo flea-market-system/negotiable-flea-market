@@ -24,7 +24,7 @@ public class Users {
 	@Column(nullable = false)
 	private String name;
 	
-	@Column(nullable = false, unique = true) //資料との差分: 私はnullable falseでいいと思う
+	@Column(nullable = false, unique = true) // 追加: schemaのemail VARCHAR(255) NOT NULL UNIQUEに合わせた。
 	private String email;
 	
 	@Column(nullable = false)
@@ -32,6 +32,10 @@ public class Users {
 	
 	@Column(nullable = false)
 	private String role;
+	
+	// LINE Notify のアクセストークン（任意）
+	@Column(name = "line_notify_token")
+	private String lineNotifyToken;
 	
 	// 追加: アカウントの有効/無効フラグ。初期値は true(有効) @Column(nullable = false)
 	private boolean enabled = true; // New field
