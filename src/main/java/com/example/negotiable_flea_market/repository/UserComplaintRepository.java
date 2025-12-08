@@ -11,5 +11,5 @@ import com.example.negotiable_flea_market.entity.UserComplaint;
 public interface UserComplaintRepository extends JpaRepository<UserComplaint, Long> {
 	long countByReportedUserId(Long reportedUserId);
 
-	List<UserComplaint> findByReportedUserId(Long reportedUserId);
+	List<UserComplaint> findByReportedUserIdOrderByCreatedAtDesc(Long reportedUserId);
 }
