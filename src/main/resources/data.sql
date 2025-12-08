@@ -1,11 +1,11 @@
-INSERT INTO users (name, email, password, role )
+INSERT INTO users (name, email, password, role, enablede)
 VALUES 
 -- 出品者：メールとパスワード
- ('出品者 A', 'sellerA@example.com', 'password', 'USER'),
+ ('出品者 A', 'sellerA@example.com', 'password', 'USER',TRUE),
  -- 購入者：わかりやすいメールに修正（'z'は誤りだと運用上混乱するため）
- ('購入者 B', 'buyerB@example.com', 'password', 'USER'),
+ ('購入者 B', 'buyerB@example.com', 'password', 'USER',TRUE),
  -- 管理者：管理用アカウント
- ('運営者 C', 'adminC@example.com', 'adminpass', 'ADMIN');
+ ('運営者 C', 'adminC@example.com', 'adminpass', 'ADMIN',TRUE);
 
  -- 初期カテゴリー
  INSERT INTO category(name) VALUES

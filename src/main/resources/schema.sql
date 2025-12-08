@@ -15,7 +15,12 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
     line_notify_token VARCHAR(255), --追加: line notify
-    enabled BOOLEAN NOT NULL DEFAULT TRUE
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    banned BOOLEAN NOT NULL DEFAULT FALSE, -- BAN 状態
+ 	ban_reason TEXT, -- BAN 理由
+ 	banned_at TIMESTAMP, -- BAN 日時
+ 	banned_by_admin_id INT -- BAN 実行管理者
+    
 );
 
 -- ===== category(カテゴリ)テーブル作成 =====
@@ -95,6 +100,17 @@ CREATE TABLE review (
 	FOREIGN KEY (item_id) REFERENCES item(id)
 );
 
+-- 通報情報（ユーザー同士）
+CREATE TABLE user_complaint (
+ id SERIAL PRIMARY KEY,
+ reported_user_id INT NOT NULL, -- 通報されたユーザー
+ reporter_user_id INT NOT NULL, -- 通報者
+ reason TEXT NOT NULL, -- 理由
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (reported_user_id) REFERENCES users(id),
+ FOREIGN KEY (reporter_user_id) REFERENCES users(id)
+);
+
 -- ===== パフォーマンス向上のためのインデックス =====
 CREATE INDEX IF NOT EXISTS idx_item_users_id ON item(users_id);
 CREATE INDEX IF NOT EXISTS idx_item_category_id ON item(category_id);
@@ -105,7 +121,8 @@ CREATE INDEX IF NOT EXISTS idx_chat_sender_id ON chat(sender_id);
 CREATE INDEX IF NOT EXISTS idx_fav_users_id ON favorite_item(users_id);
 CREATE INDEX IF NOT EXISTS idx_fav_item_id ON favorite_item(item_id);
 CREATE INDEX IF NOT EXISTS idx_review_order_id ON review(order_id);
-
+CREATE INDEX IF NOT EXISTS idx_uc_reported ON user_complaint(reported_user_id);
+CREATE INDEX IF NOT EXISTS idx_uc_reporter ON user_complaint(reporter_user_id);
 
 
 	

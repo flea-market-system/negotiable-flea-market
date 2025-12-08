@@ -1,9 +1,9 @@
 package com.example.negotiable_flea_market.repository;
 
-import java.awt.print.Pageable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.negotiable_flea_market.entity.Item;
@@ -14,10 +14,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 	Page<Item> findByNameContainingIgnoreCaseAndStatus(String name, String status, Pageable pageable);
 
 	// カテゴリ ID + ステータスでページング検索
-	Page<Item> findByNameContainingIgnoreCaseAndStatus(Long categoryId, String status, Pageable pageable);
+	Page<Item> findByCategoryIdAndStatus(Long categoryId, String status, Pageable pageable);
 
 	// 名前の部分一致 + カテゴリ ID + ステータスでページング検索
-	Page<Item> findByNameContainingIgnoreCaseAndStatus(String name, Long categoryId, String status, Pageable pageable);
+	Page<Item> findByNameContainingIgnoreCaseAndCategoryIdAndStatus(String name, Long categoryId, String status,
+			Pageable pageable);
 
 	// ステータスのみでページング取得（公開中一覧など)
 	Page<Item> findByStatus(String status, Pageable pageable);
