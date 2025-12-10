@@ -8,6 +8,11 @@ import com.example.negotiable_flea_market.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository; // リポジトリアノテーション
 import org.springframework.stereotype.Repository;
 
+
+//コレクション/Optional 
+import java.util.List; 
+import java.util.Optional;
+
 @Repository
 public interface FavoriteItemRepository extends JpaRepository<FavoriteItem, Long> {
     // ユーザーと商品で一意に検索

@@ -18,7 +18,12 @@ import java.util.Optional;
 public interface AppOrderRepository extends JpaRepository<AppOrder, Long> {
     // 買い手で注文一覧を取得
     List<AppOrder> findByBuyer(User buyer);
-
+    
     // 出品者で注文一覧を取得（Item の seller 経由）
+    // アンダースコア(_)は Itemエンティティ内の seller プロパティを指すための命名規則です
     List<AppOrder> findByItem_Seller(User seller);
+
+    // ★ <追加> : Stripeの決済ID (payment_intent_id) で注文を検索
+    // 決済完了処理(completePurchase)で必ず使用します
+    Optional<AppOrder> findByPaymentIntentId(String paymentIntentId);
 }
