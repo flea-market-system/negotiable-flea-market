@@ -40,7 +40,8 @@ public class User {
 	@Column(name = "line_notify_token")
 	private String lineNotifyToken;
 
-	// 追加: アカウントの有効/無効フラグ。初期値は true(有効) @Column(nullable = false)
+	// 追加: アカウントの有効/無効フラグ。初期値は true(有効) 
+	@Column(nullable = false)
 	private boolean enabled = true; // New field
 
 	@Column(nullable = false)
