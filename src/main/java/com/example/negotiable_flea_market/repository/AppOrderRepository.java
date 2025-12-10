@@ -1,9 +1,9 @@
 // リポジトリのパッケージ
-package com.example.fleamarketsystem.repository;
+package com.example.negotiable_flea_market.repository;
 
 //エンティティと関連型の import
-import com.example.fleamarketsystem.entity.AppOrder;
-import com.example.fleamarketsystem.entity.User; 
+import com.example.negotiable_flea_market.entity.AppOrder;
+import com.example.negotiable_flea_market.entity.User; 
 //Spring Data JPA の import
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

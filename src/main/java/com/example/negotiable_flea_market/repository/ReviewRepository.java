@@ -1,5 +1,5 @@
 // パッケージ宣言
-package com.example.fleamarketsystem.repository;
+package com.example.negotiable_flea_market.repository;
 // コレクション/Optional 
 import java.util.List; 
 import java.util.Optional;
@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 // リポジトリアノテーション
 import org.springframework.stereotype.Repository;
 // エンティティのインポート
-import com.example.fleamarketsystem.entity.Review; 
-import com.example.fleamarketsystem.entity.User;
+import com.example.negotiable_flea_market.entity.Review; 
+import com.example.negotiable_flea_market.entity.User;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {

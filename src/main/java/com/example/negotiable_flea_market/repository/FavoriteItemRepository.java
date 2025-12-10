@@ -1,9 +1,9 @@
 // パッケージ宣言
-package com.example.fleamarketsystem.repository;
+package com.example.negotiable_flea_market.repository;
 // エンティティのインポート
-import com.example.fleamarketsystem.entity.FavoriteItem; 
-import com.example.fleamarketsystem.entity.Item;
-import com.example.fleamarketsystem.entity.User;
+import com.example.negotiable_flea_market.FavoriteItem; 
+import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.User;
 // Spring Data JPA
 import org.springframework.data.jpa.repository.JpaRepository; // リポジトリアノテーション
 import org.springframework.stereotype.Repository;

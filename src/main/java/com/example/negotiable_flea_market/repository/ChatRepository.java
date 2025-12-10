@@ -1,10 +1,10 @@
 // パッケージ宣言
-package com.example.fleamarketsystem.repository;
+package com.example.negotiable_flea_market.repository;
 
 
 //エンティティのインポート
-import com.example.fleamarketsystem.entity.Chat;
-import com.example.fleamarketsystem.entity.Item;
+import com.example.negotiable_flea_market.entity.Chat;
+import com.example.negotiable_flea_market.entity.Item;
 
 //Spring Data JPA
 import org.springframework.data.jpa.repository.JpaRepository;
