@@ -20,7 +20,7 @@ public class SecurityConfig {
 				// 認可（アクセス制御）に関する設定を行う
 				.authorizeHttpRequests(auth -> auth
 						// ログイン画面および静的リソースへのアクセスパスを指定
-						.requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/webjars/**", "/error")
+						.requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/webjars/**")
 						// 上記パスは未ログインでもアクセス許可
 						.permitAll()
 						// /admin 配下は ADMIN ロールのみアクセス許可
