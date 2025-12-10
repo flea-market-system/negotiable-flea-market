@@ -2,8 +2,7 @@
 package com.example.negotiable_flea_market.service;
 
 import com.example.negotiable_flea_market.entity.Category;
-//サービスのパッケージ
-package com.example.negotiable_flea_market.service;
+import com.example.negotiable_flea_market.repository.CategoryRepository;
 
 import org.springframework.stereotype.Service;
 

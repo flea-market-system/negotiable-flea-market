@@ -45,8 +45,6 @@ public class AppOrderService {
 		this.lineNotifyService = lineNotifyService;
 	}
 
-}
-
 	//購入開始:PaymentIntent 作成+注文を“決済待ち”で作成(PaymentIntent ID を保存)
 	@Transactional
 	public PaymentIntent initiatePurchase(Long itemId, User buyer) throws StripeException {
