@@ -1,5 +1,7 @@
 package com.example.negotiable_flea_market.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,4 +42,17 @@ public class User {
 
 	// 追加: アカウントの有効/無効フラグ。初期値は true(有効) @Column(nullable = false)
 	private boolean enabled = true; // New field
+
+	@Column(nullable = false)
+	private boolean banned = false; //banフラグ
+
+	@Column(name = "ban_reason")
+	private String banReason;
+
+	@Column(name = "banned_at")
+	private LocalDateTime bannedAt;
+
+	@Column(name = "banned_by_admin_id")
+	private Integer bannedByAdminId;
+
 }
