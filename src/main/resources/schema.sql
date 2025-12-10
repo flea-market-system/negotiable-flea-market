@@ -6,6 +6,9 @@ DROP TABLE IF EXISTS app_order CASCADE;
 DROP TABLE IF EXISTS item CASCADE;
 DROP TABLE IF EXISTS category CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS user_complaint CASCADE;
+
+
 
 -- ===== users(ユーザー)テーブル作成 =====
 CREATE TABLE users (
@@ -112,17 +115,23 @@ CREATE TABLE user_complaint (
 );
 
 -- ===== パフォーマンス向上のためのインデックス =====
+CREATE INDEX IF NOT EXISTS idx_users_banned ON users(banned);
+CREATE INDEX IF NOT EXISTS idx_users_banned_by ON users(banned_by_admin_id);
+
 CREATE INDEX IF NOT EXISTS idx_item_users_id ON item(users_id);
 CREATE INDEX IF NOT EXISTS idx_item_category_id ON item(category_id);
+
 CREATE INDEX IF NOT EXISTS idx_order_item_id ON app_order(item_id);
 CREATE INDEX IF NOT EXISTS idx_order_buyer_id ON app_order(buyer_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_order_pi ON app_order(payment_intent_id);
+
 CREATE INDEX IF NOT EXISTS idx_chat_item_id ON chat(item_id);
 CREATE INDEX IF NOT EXISTS idx_chat_sender_id ON chat(sender_id);
+
 CREATE INDEX IF NOT EXISTS idx_fav_users_id ON favorite_item(users_id);
 CREATE INDEX IF NOT EXISTS idx_fav_item_id ON favorite_item(item_id);
+
 CREATE INDEX IF NOT EXISTS idx_review_order_id ON review(order_id);
+
 CREATE INDEX IF NOT EXISTS idx_uc_reported ON user_complaint(reported_user_id);
 CREATE INDEX IF NOT EXISTS idx_uc_reporter ON user_complaint(reporter_user_id);
-
-
-	
