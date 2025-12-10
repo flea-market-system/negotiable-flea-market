@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.negotiable_flea_market.entity.Item;
 import com.example.negotiable_flea_market.entity.User;
-import com.example.negotiable_flea_market.repository.CategoryRepository;
 import com.example.negotiable_flea_market.repository.ItemRepository;
 
 @Service
@@ -29,29 +30,28 @@ public class ItemService {
 
 	// 商品検索：キーワード/カテゴリ/ページングを組み合わせ、公開中のみ返す
 	public Page<Item> searchItems(String keyword, Long categoryId, int page, int size) {
-	 // ページング指定を生成
-	 Pageable pageable = PageRequest.of(page, size);
-	 // キーワードとカテゴリ両方指定時の検索
-	 if (keyword != null && !keyword.isEmpty() && categoryId != null) {
-	 // 名前 LIKE×カテゴリ×出品中で検索
-	 return
-	itemRepository.findByNameContainingIgnoreCaseAndCategoryIdAndStatus(keyword, categoryId, "出品
-	中", pageable);
-	 // キーワードのみ指定時の検索
-	 } else if (keyword != null && !keyword.isEmpty()) {
-	 // 名前 LIKE×出品中で検索
-	 return itemRepository.findByNameContainingIgnoreCaseAndStatus(keyword, "出品中",
-	pageable);
-	 // カテゴリのみ指定時の検索
-	 } else if (categoryId != null) {
-	 // カテゴリ×出品中で検索
-	 return itemRepository.findByCategoryIdAndStatus(categoryId, "出品中", pageable);
-	 // 条件未指定時のデフォルト検索
-	 } else {
-	 // 出品中のみ全件ページングで返す
-	 return itemRepository.findByStatus("出品中", pageable);
-	 }
-	 }
+		// ページング指定を生成
+		Pageable pageable = PageRequest.of(page, size);
+		// キーワードとカテゴリ両方指定時の検索
+		if (keyword != null && !keyword.isEmpty() && categoryId != null) {
+			// 名前 LIKE×カテゴリ×出品中で検索
+			return itemRepository.findByNameContainingIgnoreCaseAndCategoryIdAndStatus(keyword, categoryId, "出品中",
+					pageable);
+			// キーワードのみ指定時の検索
+		} else if (keyword != null && !keyword.isEmpty()) {
+			// 名前 LIKE×出品中で検索
+			return itemRepository.findByNameContainingIgnoreCaseAndStatus(keyword, "出品中",
+					pageable);
+			// カテゴリのみ指定時の検索
+		} else if (categoryId != null) {
+			// カテゴリ×出品中で検索
+			return itemRepository.findByCategoryIdAndStatus(categoryId, "出品中", pageable);
+			// 条件未指定時のデフォルト検索
+		} else {
+			// 出品中のみ全件ページングで返す
+			return itemRepository.findByStatus("出品中", pageable);
+		}
+	}
 
 	// 全商品一覧を返す（管理用など）
 	public List<Item> getAllItems() {

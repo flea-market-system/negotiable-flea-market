@@ -1,11 +1,14 @@
 package com.example.negotiable_flea_market.service;
 
+import java.util.List;
 import java.util.OptionalDouble;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.negotiable_flea_market.entity.AppOrder;
 import com.example.negotiable_flea_market.entity.Review;
+import com.example.negotiable_flea_market.entity.User;
 import com.example.negotiable_flea_market.repository.AppOrderRepository;
 import com.example.negotiable_flea_market.repository.ReviewRepository;
 
