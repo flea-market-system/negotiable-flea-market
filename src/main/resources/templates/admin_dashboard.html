@@ -1,0 +1,110 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- 文書のルート要素。言語を日本語、Thymeleaf と Spring Security Dialect の XMLNS を宣言 -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- メタデータと CSS などの外部リソースを定義する領域 -->
+
+<head>
+	<!-- 文字エンコーディングを UTF-8 に設定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示されるページタイトルを設定 -->
+	<title>管理者ダッシュボード - フリマアプリ</title>
+	<!-- アプリ共通のスタイルシートを読み込む(Thymeleaf でパス解決) -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<!-- 画面に表示される本体部分 -->
+
+<body>
+	<!-- レイアウト用の幅制限と余白・影を与えるコンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>管理者ダッシュボード</h1>
+		<!-- ログイン中のユーザー名を Spring Security の認証情報から表示 -->
+		<p>ようこそ、<span sec:authentication="name"></span>さん! (管理者)</p>
+
+		<!-- 主要ナビゲーションを並べる領域 -->
+		<div class="main-nav">
+			<!-- 商品管理画面へのリンク -->
+			<a th:href="@{/admin/items}" class="button">商品管理</a>
+			<!-- ユーザー管理画面へのリンク -->
+			<a th:href="@{/admin/users}" class="button">ユーザー管理</a>
+			<!-- 統計画面へのリンク -->
+			<a th:href="@{/admin/statistics}" class="button">統計画面</a>
+			<!-- ログアウト POST フォーム(CSRF 等は Spring Security が自動付与) -->
+			<form th:action="@{/logout}" method="post" style="display:inline;">
+				<!-- ログアウト送信ボタン(見た目はセカンダリ) -->
+				<button type="submit" class="button secondary">ログアウト</button>
+			</form>
+		</div>
+
+		<!-- 最近の出品セクション見出し -->
+		<h2>最近の出品</h2>
+		<!-- 最近の出品を表形式で表示 -->
+		<table>
+			<!-- テーブルの列見出し -->
+			<thead>
+				<tr>
+					<th>商品名</th>
+					<th>出品者</th>
+					<th>価格</th>
+					<th>ステータス</th>
+				</tr>
+			</thead>
+			<!-- テーブルの本体。items リストを Thymeleaf で展開 -->
+			<tbody>
+				<!-- recentItems をループし 1 行ずつ描画 -->
+				<tr th:each="item : ${recentItems}">
+					<!-- 商品名を表示 -->
+					<td th:text="${item.name}"></td>
+					<!-- 出品者の表示名を表示 -->
+					<td th:text="${item.seller.name}"></td>
+					<!-- 価格をコンマ区切りで表示し、先頭に¥を付与 -->
+					<td th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0,'POINT')}"></td>
+					<!-- 商品のステータス(出品中/売却済)を表示 -->
+					<td th:text="${item.status}"></td>
+				</tr>
+				<!-- 要素が空の場合のメッセージ行 -->
+				<tr th:if="${#lists.isEmpty(recentItems)}">
+					<!-- 全列を結合して「最近の出品はありません」を表示 -->
+					<td colspan="4">最近の出品はありません。</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 最近の注文セクション見出し -->
+		<h2>最近の注文</h2>
+		<!-- 最近の注文を表形式で表示 -->
+		<table>
+			<!-- テーブルの列見出し -->
+			<thead>
+				<tr>
+					<th>商品名</th>
+					<th>購入者</th>
+					<th>価格</th>
+					<th>ステータス</th>
+				</tr>
+			</thead>
+			<!-- テーブル本体。recentOrders をループ表示 -->
+			<tbody>
+				<!-- recentOrders を 1 件ずつ行として描画 -->
+				<tr th:each="order : ${recentOrders}">
+					<!-- 注文の商品名を表示 -->
+					<td th:text="${order.item.name}"></td>
+					<!-- 購入者の表示名を表示 -->
+					<td th:text="${order.buyer.name}"></td>
+					<!-- 価格をフォーマットして表示 -->
+					<td th:text="'¥' + ${#numbers.formatDecimal(order.price, 0, 'COMMA', 0, 'POINT')}"></td>
+					<!-- 注文ステータス(購入済/発送済)を表示 -->
+					<td th:text="${order.status}"></td>
+				</tr>
+				<!-- 要素が空の場合のメッセージ行 -->
+				<tr th:if="${#lists.isEmpty(recentOrders)}">
+					<!-- 全列結合で「最近の注文はありません」を表示 -->
+					<td colspan="4">最近の注文はありません。</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+
+</html>
