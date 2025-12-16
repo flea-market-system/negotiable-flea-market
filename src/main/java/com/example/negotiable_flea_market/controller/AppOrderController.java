@@ -169,17 +169,3 @@ public class AppOrderController {
 		return "redirect:/my-page/sales";
 	}
 }
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-}
