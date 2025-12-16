@@ -90,7 +90,7 @@ public class AppOrderController {
 
 		// 必要な情報がない場合は不正なアクセスとみなし、商品一覧へリダイレクト 
 		if (clientSecret == null || itemId == null) {
-			return "redirect:/items"; // Redirect if no payment intent data }
+			return "redirect:/items"; // Redirect if no payment intent data
 		}
 
 		// テンプレートで Stripe 決済処理を行うために clientSecret を Model に格納 

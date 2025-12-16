@@ -44,8 +44,8 @@ public class AdminController {
 		// すべての商品一覧を取得して、ビューに渡すために Model へ登録
 		model.addAttribute("items", itemService.getAllItems());
 		// admin_items.html というテンプレート名を返し、商品管理画面を表示 r
-		eturn "admin_items";
-}
+		return "admin_items";
+	}
 
 	// 管理者が商品を削除するためのハンドラ(POST /admin/items/{id}/delete) 
 	@PostMapping("/items/{id}/delete")

@@ -56,10 +56,10 @@ public class ChatController {
 		@RequestParam("message") String message) {
 		// ログインユーザーのメールアドレスから User エンティティを取得(存在しなければ例外) 
 		User sender = userService.getUserByEmail(userDetails.getUsername())
-		.orElseThrow(() -> new RuntimeException("Sender not found")); /
-		/ サービスを通じてチャットメッセージを保存・送信処理 
+		.orElseThrow(() -> new RuntimeException("Sender not found")); 
+		// サービスを通じてチャットメッセージを保存・送信処理 
 		chatService.sendMessage(itemId, sender, message);
 		// 同じ商品のチャット画面へリダイレクトし、最新のメッセージ一覧を再表示 
-		return "redirect:/chat/{itemId}";
+		return "redirect:/chat/{itemId}"; //"redirect:/chat/{itemId}" をそのまま文字列で返すと Spring のパス変数展開が効かない場合があるため、"redirect:/chat/" + itemId の方が確実です。
 	}
 }
