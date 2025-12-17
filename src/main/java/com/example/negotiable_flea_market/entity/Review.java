@@ -32,7 +32,7 @@ public class Review {
 
 	@ManyToOne
 	@JoinColumn(name = "reviewer_id", nullable = false)
-	private User reviewerUser;
+	private User reviewer;
 
 	@ManyToOne
 	@JoinColumn(name = "seller_id", nullable = false)
