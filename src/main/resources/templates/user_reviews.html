@@ -1,0 +1,80 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素。言語=日本語、Thymeleaf と Spring Security Dialect を宣言 -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ヘッダー領域：メタ情報・タイトル・スタイル読込 -->
+
+<head>
+	<!-- 文字コードを UTF-8 に設定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示されるページタイトル -->
+	<title>自分の評価 - フリマアプリ</title>
+	<!-- 共通スタイルシートの読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<!-- 画面本体開始 -->
+
+<body>
+	<!-- レイアウト中央寄せのコンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>自分の評価</h1>
+		<!-- ページ説明文 -->
+		<p>あなたが送信した評価の一覧です。</p>
+		<!-- 評価一覧テーブル -->
+		<table>
+			<!-- 表ヘッダ行の定義 -->
+			<thead>
+				<!-- 列見出し行 -->
+				<tr>
+					<!-- 商品名列 -->
+					<th>商品名</th>
+					<!-- 出品者列 -->
+					<th>出品者</th>
+					<!-- 評価（★表示）列 -->
+					<th>評価</th>
+					<!-- コメント列 -->
+					<th>コメント</th>
+					<!-- 評価日時列 -->
+					<th>評価日時</th>
+				</tr>
+			</thead>
+			<!-- 表本体 -->
+			<tbody>
+				<!-- reviews コレクションをループして各レビューを表示 -->
+				<tr th:each="review : ${reviews}">
+					<!-- 対象商品名 -->
+					<td th:text="${review.item.name}"></td>
+					<!-- 対象出品者名 -->
+					<td th:text="${review.seller.name}"></td>
+					<!-- 星評価（1〜5 のシーケンスで★/☆を描画） -->
+					<td>
+						<!-- 1〜5 までの数列を回して評価値以下を★、それ以外を☆で表示 -->
+						<span th:each="i : ${#numbers.sequence(1, 5)}">
+							<!-- i が評価以下なら★ -->
+							<span th:if="${i <= review.rating}">★</span>
+							<!-- i が評価より大きければ☆ -->
+							<span th:if="${i > review.rating}">☆</span>
+						</span>
+					</td>
+					<!-- レビューコメント本文 -->
+					<td th:text="${review.comment}"></td>
+					<!-- 作成日時を YYYY/MM/DD HH:mm 形式で整形表示 -->
+					<td th:text="${#temporals.format(review.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+				</tr>
+				<!-- レビューが 0 件のときの表示 -->
+				<tr th:if="${#lists.isEmpty(reviews)}">
+					<!-- 0 件メッセージ -->
+					<td colspan="5">まだ評価を送信していません。</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 画面下部の戻る導線 -->
+		<div class="button-group">
+			<!-- マイページへ戻るリンク（セカンダリ） -->
+			<a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
+		</div>
+	</div>
+</body>
+
+</html>

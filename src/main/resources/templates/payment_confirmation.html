@@ -1,0 +1,97 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素：日本語ページ／Thymeleaf を宣言（セキュリティダイアレクトは不要） -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<!-- ヘッダー領域（メタ・タイトル・スタイル・スクリプト） -->
+
+<head>
+	<!-- 文字コードを UTF-8 に指定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示するタイトル -->
+	<title>決済確認 - フリマアプリ</title>
+	<!-- 共通スタイルシートの読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<!-- Stripe.js（公開キーで初期化し、Elements を使用） -->
+	<script src="https://js.stripe.com/v3/"></script>
+</head>
+<!-- 本文開始 -->
+
+<body>
+	<!-- レイアウト用の中央コンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>決済確認</h1>
+		<!-- 操作説明文：この画面で支払いを完了する旨を表示 -->
+		<p>以下の内容で決済を完了します。</p>
+		<!-- Stripe Elements の描画ターゲット要素 -->
+		<div id="payment-element"></div>
+		<!-- 決済確定ボタン -->
+		<button id="submit" class="button">決済を完了する</button>
+		<!-- エラーメッセージ表示領域 -->
+		<div id="payment-message" class="error-message"></div>
+		<!-- 戻る導線（商品詳細へ戻る） -->
+		<div class="button-group">
+			<!-- itemId パラメータで商品詳細へ戻す -->
+			<a th:href="@{/items/{id}(id=${itemId})}" class="button secondary">商品詳細に戻る
+			</a>
+		</div>
+	</div>
+	<!-- 画面内スクリプト（Thymeleaf 変数を JS リテラルに埋め込み） -->
+	<script th:inline="javascript">
+		// サーバから受け取った Stripe 公開キー
+		const stripePublicKey = [[${stripePublicKey}]];
+		// サーバサイドで作成された PaymentIntent のクライアントシークレット
+		const clientSecret = [[${clientSecret}]];
+		// 遷移元の商品 ID（戻り導線などに活用）
+		const itemId = [[${itemId}]];
+		// Stripe を公開キーで初期化
+		const stripe = Stripe(stripePublicKey);
+		// Elements をクライアントシークレット付きで生成
+		const elements = stripe.elements({clientSecret});
+		// 決済 UI 要素（支払いフォーム）を作成
+		const paymentElement = elements.create('payment');
+		// 決済 UI 要素を DOM へマウント
+		paymentElement.mount('#payment-element');
+		// 送信ボタン要素を取得
+		const form = document.getElementById('submit');
+		// エラーメッセージ表示領域を取得
+		const messageContainer = document.getElementById('payment-message');
+		// クリックで支払い確定処理を開始（フォーム送信ではなく JS 制御）
+		form.addEventListener('click', async (e) => {
+			// ボタンのデフォルト動作（フォーム送信）を止める
+			e.preventDefault();
+			// Stripe へ支払い確定リクエストを送る（リダイレクト不要時は XHR 内で完了）
+			const {error} = await stripe.confirmPayment({
+				// 作成済み Elements を指定
+				elements,
+				// 決済成功後の戻り URL（必要に応じてサーバ側で検証/完了処理）
+				confirmParams: {
+					// クライアントシークレットから PaymentIntent ID 部分を組み立てて返送（簡易実装）
+					return_url: window.location.origin + '/orders/completepurchase?paymentIntentId=' + clientSecret.split('_')[0] + '_' + clientSecret.split('_')[1],
+				},
+				// 3DS などで外部遷移が不要な場合はそのまま JS で継続
+				redirect: 'if_required',
+			});
+			// エラーが返ってきた場合の分岐
+			if (error) {
+				// カードエラー or 入力検証エラーの場合は詳細を表示
+				if (error.type === "card_error" || error.type === "validation_error") {
+					// Stripe が示す具体的なエラーメッセージを表示
+					messageContainer.textContent = error.message;
+				} else {
+					// 上記以外の不測のエラー
+					messageContainer.textContent = "予期せぬエラーが発生しました。";
+				}
+			} else {
+				// エラーなし＝即時成功（サーバ検証のため PaymentIntent ID で完了 API へ遷移）
+				const paymentIntentId = clientSecret.split('_')[0] + '_' +
+					clientSecret.split('_')[1];
+				// 完了エンドポイントへ GET 遷移（サーバで購入完了処理を実行）
+				window.location.href = '/orders/complete-purchase?paymentIntentId=' +
+					paymentIntentId;
+			}
+		});
+	</script>
+</body>
+
+</html>

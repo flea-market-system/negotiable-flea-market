@@ -1,26 +1,26 @@
 package com.example.negotiable_flea_market.controller;
 
-import com.example.negotiable_flea_market.entity.User;
-import com.example.negotiable_flea_market.service.AppOrderService;
-import com.example.negotiable_flea_market.service.ItemService;
-import com.example.negotiable_flea_market.service.UserService;
-
-import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.example.negotiable_flea_market.entity.User;
+import com.example.negotiable_flea_market.service.AppOrderService;
+import com.example.negotiable_flea_market.service.ItemService;
+import com.example.negotiable_flea_market.service.UserService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 
 //注文・決済(Stripe 連携含む)に関する画面制御を行うコントローラークラス 
 @Controller
@@ -134,7 +134,7 @@ public class AppOrderController {
 			return "redirect:/items"; // Redirect to item list or a generic error page
 		}
 	}
-	
+
 	// Stripe Webhook の受信エンドポイント(概念のみ、本番運用では署名検証・イベント処理が必須) 
 	@PostMapping("/stripe-webhook")
 	public void handleStripeWebhook(
@@ -143,12 +143,12 @@ public class AppOrderController {
 			@RequestBody String payload,
 			// Stripe-Signature ヘッダ(署名検証に使用する値) 
 			@RequestHeader("Stripe-Signature") String sigHeader) {
-			// 実運用ではここで署名検証を行い、イベント種別ごとに処理を分岐させる
-			// 例:payment_intent.succeeded / payment_intent.payment_failed など 
-			System.out.println("Received Stripe Webhook: " + payload);
-			// 例: if (event.getType().equals("payment_intent.succeeded")) { ... } といった処理を実装
+		// 実運用ではここで署名検証を行い、イベント種別ごとに処理を分岐させる
+		// 例:payment_intent.succeeded / payment_intent.payment_failed など 
+		System.out.println("Received Stripe Webhook: " + payload);
+		// 例: if (event.getType().equals("payment_intent.succeeded")) { ... } といった処理を実装
 	}
-	
+
 	// 販売者が自分の注文を「発送済み」に変更するためのエンドポイント 
 	@PostMapping("/{id}/ship")
 	public String shipOrder(

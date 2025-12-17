@@ -1,0 +1,55 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素：日本語ページ／Thymeleaf と Spring Security Dialect を宣言 -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ヘッダー領域（メタ・タイトル・スタイル） -->
+
+<head>
+	<!-- 文字コードを UTF-8 に指定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示するタイトル -->
+	<title>マイページ - フリマアプリ</title>
+	<!-- 共通スタイルシートの読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<!-- 本文開始 -->
+
+<body>
+	<!-- レイアウト用の中央コンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>マイページ</h1>
+		<!-- ログイン中ユーザー名を差し込み表示 -->
+		<p>ようこそ、<span th:text="${user.name}"></span>さん！</p>
+		<!-- 機能ナビゲーション -->
+		<div class="main-nav">
+			<!-- 出品管理ページへのリンク -->
+			<a th:href="@{/my-page/selling}" class="button">出品管理</a>
+			<!-- 購入履歴ページへのリンク -->
+			<a th:href="@{/my-page/orders}" class="button">購入履歴</a>
+			<!-- 販売履歴ページへのリンク -->
+			<a th:href="@{/my-page/sales}" class="button">販売履歴</a>
+			<!-- お気に入りページへのリンク -->
+			<a th:href="@{/my-page/favorites}" class="button">お気に入り</a>
+			<!-- 自分が送信した評価一覧ページへのリンク -->
+			<a th:href="@{/my-page/reviews}" class="button">自分の評価</a>
+			<!-- 商品一覧へ戻る導線（サブカラー） -->
+			<a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
+			<!-- ログアウト POST フォーム（ボタンレイアウトのためインライン表示） -->
+			<form th:action="@{/logout}" method="post" style="display:inline;">
+				<!-- ログアウトボタン（強調のため danger クラス） -->
+				<button type="submit" class="button danger">ログアウト</button>
+			</form>
+		</div>
+		<!-- アカウント情報の見出し -->
+		<h2>アカウント情報</h2>
+		<!-- 名前ラベルと値を表示 -->
+		<p><strong>名前:</strong> <span th:text="${user.name}"></span></p>
+		<!-- メールラベルと値を表示 -->
+		<p><strong>メールアドレス:</strong> <span th:text="${user.email}"></span></p>
+		<!-- 役割ラベルと値を表示（USER/ADMIN） -->
+		<p><strong>役割:</strong> <span th:text="${user.role}"></span></p>
+	</div>
+</body>
+
+</html>
