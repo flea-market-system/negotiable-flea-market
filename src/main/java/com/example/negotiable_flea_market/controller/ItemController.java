@@ -131,44 +131,6 @@ public class ItemController {
 		return "item_detail";
 	}
 
-	// 商品詳細画面の表示(チャット・お気に入り・出品者評価などを含む) 
-	@GetMapping("/{id}")
-	public String showItemDetail(
-			// パスパラメータから商品 ID を取得
-			@PathVariable("id") Long id,
-			// ログインユーザー情報(未ログインの場合は null になり得る) 
-			@AuthenticationPrincipal UserDetails userDetails,
-			// 画面に値を渡すための Model
-			Model model) {
-		// 商品 ID から商品を取得。存在しない場合は一覧へリダイレクト 
-		Optional<Item> item = itemService.getItemById(id);
-		if (item.isEmpty()) {
-			// 対象商品が存在しない場合は商品一覧へ戻す 
-			return "redirect:/items"; // Item not found
-		}
-		// 取得した商品を Model に格納
-		model.addAttribute("item", item.get());
-		// 対象商品のチャットメッセージ一覧を Model に格納
-		model.addAttribute("chats", chatService.getChatMessagesByItem(id));
-
-		// 出品者の平均評価を取得して、存在する場合のみ Model へ設定 
-		reviewService.getAverageRatingForSeller(item.get().getSeller())
-				// 小数 1 桁でフォーマットして"sellerAverageRating"として渡す 
-				.ifPresent(avg -> model.addAttribute("sellerAverageRating",
-						String.format("%.1f", avg)));
-
-		// ログインユーザーがいる場合のみ、お気に入りフラグを判定 
-		if (userDetails != null) {
-			// ログインユーザーの User エンティティを取得
-			User currentUser = userService.getUserByEmail(userDetails.getUsername())
-					.orElseThrow(() -> new RuntimeException("User not found"));
-			// 現在のユーザーがこの商品をお気に入り登録済みかどうかを判定し Model に渡す 
-			model.addAttribute("isFavorited", favoriteService.isFavorited(currentUser, id));
-		}
-		// 商品詳細画面テンプレートを返却 
-		return "item_detail";
-	}
-
 	// 新規出品フォームの表示 
 	@GetMapping("/new")
 	public String showAddItemForm(Model model) {
@@ -360,7 +322,7 @@ public class ItemController {
 
 		try {
 			// お気に入り追加処理を実行 f
-			avoriteService.addFavorite(currentUser, itemId);
+			favoriteService.addFavorite(currentUser, itemId);
 			// 正常時メッセージを設定 
 			redirectAttributes.addFlashAttribute("successMessage", "お気に入りに追加しました!");
 		} catch (IllegalStateException e) {
