@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者: 統計データ - フリマアプリ</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+  <h1>管理者: 統計データ</h1>
+  <p>フリマアプリの売上や注文に関する統計データです。</p>
+
+  <form th:action="@{/admin/statistics}" method="get" class="filter-form">
+    <div>
+      <label for="startDate">開始日:</label>
+      <input type="date" id="startDate" name="startDate"
+             th:value="${#temporals.format(startDate, 'yyyy-MM-dd')}">
+    </div>
+    <div>
+      <label for="endDate">終了日:</label>
+      <input type="date" id="endDate" name="endDate"
+             th:value="${#temporals.format(endDate, 'yyyy-MM-dd')}">
+    </div>
+    <button type="submit" class="button">フィルタ</button>
+  </form>
+
+  <a th:href="@{/admin/statistics/csv(startDate=${startDate}, endDate=${endDate})}"
+     class="button">CSV エクスポート</a>
+
+  <h2>総売上</h2>
+  <p class="price"
+     th:text="'¥' + ${#numbers.formatDecimal(totalSales, 0, 'COMMA', 0, 'POINT')}"></p>
+
+  <h2>ステータス別注文数</h2>
+  <table>
+    <thead>
+    <tr><th>ステータス</th><th>注文数</th></tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${orderCountByStatus}">
+      <td th:text="${entry.key}"></td>
+      <td th:text="${entry.value}"></td>
+    </tr>
+    <tr th:if="${#maps.isEmpty(orderCountByStatus)}">
+      <td colspan="2">データがありません。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="button-group">
+    <a th:href="@{/admin/dashboard}" class="button secondary">管理者ダッシュボードに戻る</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者: ユーザー管理 - フリマアプリ</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+  <h1>管理者: ユーザー管理</h1>
+  <p>システム内の全てのユーザーを管理します。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th><th>名前</th><th>メールアドレス</th>
+      <th>役割</th><th>有効/無効</th><th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+      <td th:text="${user.id}"></td>
+      <td th:text="${user.name}"></td>
+      <td th:text="${user.email}"></td>
+      <td th:text="${user.role}"></td>
+      <td th:text="${user.enabled ? '有効' : '無効'}"></td>
+      <td>
+        <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}" method="post">
+		  <button type="submit"
+		          class="button"
+		          th:classappend="${user.enabled} ? 'danger' : 'secondary'"
+		          th:text="${user.enabled} ? '無効にする' : '有効にする'"
+		          th:onclick="|return confirm('本当にこのユーザーを${user.enabled ? '無効' : '有効'}にしますか？');|">
+		  </button>
+        </form>
+      </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(users)}">
+      <td colspan="6">ユーザーがいません。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="button-group">
+    <a th:href="@{/admin/dashboard}" class="button secondary">管理者ダッシュボードに戻る</a>
+  </div>
+</div>
+</body>
+</html>
