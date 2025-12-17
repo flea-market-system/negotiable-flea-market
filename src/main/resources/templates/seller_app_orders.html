@@ -1,0 +1,79 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素。言語は日本語、Thymeleaf と Spring Security Dialect を宣言 -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ヘッダー領域：メタ情報・タイトル・スタイル読込 -->
+
+<head>
+	<!-- 文字コードを UTF-8 に設定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示されるページタイトル -->
+	<title>販売履歴 - フリマアプリ</title>
+	<!-- 共通スタイルシートの読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<!-- 画面本体開始 -->
+
+<body>
+	<!-- レイアウト中央寄せのコンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>販売履歴</h1>
+		<!-- ページ説明文 -->
+		<p>あなたが販売した商品の一覧です。</p>
+		<!-- 販売履歴テーブル -->
+		<table>
+			<!-- 表ヘッダ行の定義 -->
+			<thead>
+				<!-- 列見出し行 -->
+				<tr>
+					<!-- 商品名列 -->
+					<th>商品名</th>
+					<!-- 購入者列 -->
+					<th>購入者</th>
+					<!-- 価格列 -->
+					<th>価格</th>
+					<!-- ステータス列 -->
+					<th>ステータス</th>
+					<!-- 操作列（発送ボタンなど） -->
+					<th>操作</th>
+				</tr>
+			</thead>
+			<!-- 表本体 -->
+			<tbody>
+				<!-- mySales コレクションをループして各注文行を表示 -->
+				<tr th:each="order : ${mySales}">
+					<!-- 注文に紐づく商品名を表示 -->
+					<td th:text="${order.item.name}"></td>
+					<!-- 購入者名を表示 -->
+					<td th:text="${order.buyer.name}"></td>
+					<!-- 価格を通貨風（¥＋カンマ区切り）で表示 -->
+					<td th:text="'¥' + ${#numbers.formatDecimal(order.price, 0, 'COMMA', 0,'POINT')}"></td>
+					<!-- 注文ステータスを表示（購入済/発送済 など） -->
+					<td th:text="${order.status}"></td>
+					<!-- 操作セル：発送済みにするボタンを条件表示 -->
+					<td>
+						<!-- ステータスが購入済のときのみ発送ボタンを表示 -->
+						<form th:action="@{/orders/{id}/ship(id=${order.id})}" method="post"
+							th:if="${order.status == '購入済'}">
+							<!-- 送信ボタン（発送済みに更新） -->
+							<button type="submit" class="button">発送済みにする</button>
+						</form>
+					</td>
+				</tr>
+				<!-- データが空の場合の表示（0 件メッセージ） -->
+				<tr th:if="${#lists.isEmpty(mySales)}">
+					<!-- 全列結合でメッセージを表示 -->
+					<td colspan="5">販売した商品はありません。</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 画面下部の戻る導線 -->
+		<div class="button-group">
+			<!-- マイページへ戻るリンク（セカンダリボタン） -->
+			<a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素。言語=日本語、Thymeleaf と Spring Security Dialect の xmlns を宣言（未使用でも将
+来用に残置可） -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ヘッダー領域：メタ情報・タイトル・スタイル読込 -->
+
+<head>
+	<!-- 文字コードを UTF-8 に設定 -->
+	<meta charset="UTF-8">
+	<!-- ページタイトル -->
+	<title>お気に入り - フリマアプリ</title>
+	<!-- 共通スタイルシートを読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>お気に入り</h1>
+		<!-- 画面説明文：お気に入り登録済み商品の一覧 -->
+		<p>あなたがお気に入り登録した商品の一覧です。</p>
+		<!-- 商品カードのグリッド -->
+		<div class="item-grid">
+			<!-- favoriteItems を繰り返してカード表示 -->
+			<div class="item-card" th:each="item : ${favoriteItems}">
+				<!-- 各商品の詳細ページへのリンク -->
+				<a th:href="@{/items/{id}(id=${item.id})}">
+					<!-- 商品画像（なければプレースホルダ画像） -->
+					<img th:src="${item.imageUrl != null ? item.imageUrl :'/images/placeholder.png'}" alt="商品画像">
+					<!-- 商品名 -->
+					<h3 th:text="${item.name}"></h3>
+					<!-- 価格を通貨風に整形 -->
+					<p class="price" th:text="'¥' + ${#numbers.formatDecimal(item.price, 0,'COMMA', 0, 'POINT')}"></p>
+					<!-- 出品ステータス -->
+					<p class="status" th:text="${item.status}"></p>
+				</a>
+			</div>
+			<!-- お気に入りが空のときの表示 -->
+			<div th:if="${#lists.isEmpty(favoriteItems)}">
+				<!-- 空である旨の通知 -->
+				<p>お気に入りの商品はありません。</p>
+			</div>
+		</div>
+		<!-- 画面下部の戻る導線 -->
+		<div class="button-group">
+			<!-- マイページに戻るリンク -->
+			<a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
+		</div>
+	</div>
+</body>
+
+</html>

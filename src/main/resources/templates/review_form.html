@@ -1,0 +1,56 @@
+<!-- HTML5 文書であることを宣言 -->
+<!DOCTYPE html>
+<!-- ルート要素：日本語ページ／Thymeleaf と Spring Security Dialect を宣言 -->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- ヘッダー領域（メタ・タイトル・スタイル） -->
+
+<head>
+	<!-- 文字コードを UTF-8 に指定 -->
+	<meta charset="UTF-8">
+	<!-- ブラウザタブに表示するタイトル -->
+	<title>商品評価 - フリマアプリ</title>
+	<!-- 共通スタイルシートの読み込み -->
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<!-- 本文開始 -->
+
+<body>
+	<!-- レイアウト用の中央コンテナ -->
+	<div class="container">
+		<!-- ページ見出し -->
+		<h1>商品評価</h1>
+		<!-- 対象商品名と出品者名を差し込み表示 -->
+		<p>商品「<span th:text="${order.item.name}"></span>」の出品者「<span
+				th:text="${order.item.seller.name}"></span>」を評価してください。</p>
+		<!-- エラーメッセージ（Flash 属性など）を条件表示 -->
+		<div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+		<!-- 評価送信フォーム（POST /reviews） -->
+		<form th:action="@{/reviews}" method="post">
+			<!-- 対象注文 ID を hidden で送信（サーバ側で正当性チェック） -->
+			<input type="hidden" name="orderId" th:value="${order.id}">
+			<!-- 評価点の入力行 -->
+			<p>
+				<!-- 評価のラベル（1〜5） -->
+				<label for="rating">評価 (1-5):</label>
+				<!-- 1〜5 の整数のみ許可し必須化 -->
+				<input type="number" id="rating" name="rating" min="1" max="5" required>
+			</p>
+			<!-- コメント入力行 -->
+			<p>
+				<!-- コメントのラベル（任意項目） -->
+				<label for="comment">コメント (任意):</label>
+				<!-- 任意のテキスト（複数行） -->
+				<textarea id="comment" name="comment" rows="5"></textarea>
+			</p>
+			<!-- ボタン群（送信／キャンセル） -->
+			<div class="button-group">
+				<!-- 送信ボタン：評価を登録 -->
+				<button type="submit">評価を送信</button>
+				<!-- キャンセル：購入履歴へ戻る -->
+				<a th:href="@{/my-page/orders}" class="button secondary">キャンセル</a>
+			</div>
+		</form>
+	</div>
+</body>
+
+</html>
