@@ -37,6 +37,6 @@ public class Chat {
 	private String message;
 
 	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createDateTime = LocalDateTime.now();
+	private LocalDateTime createdAt = LocalDateTime.now();
 
 }
