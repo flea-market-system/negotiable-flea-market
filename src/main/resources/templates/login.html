@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>ログイン - フリマアプリ</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body>
-  <div class="container">
-    <h1>フリマアプリ</h1>
-    <h2>ログイン</h2>
-    
-    <div th:if="${param.error}" class="error-message" style="color: red;">
-      メールアドレスまたはパスワードが不正です。
-    </div>
-    <div th:if="${param.logout}" class="success-message" style="color: green;">
-      ログアウトしました。
-    </div>
 
-    <form th:action="@{/login}" method="post">
-      <p>
-        <label for="username">メールアドレス:</label>
-        <input type="text" id="username" name="username" required>
-      </p>
-      <p>
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required>
-      </p>
-      <div class="button-group">
-        <button type="submit" class="button">ログイン</button>
-      </div>
-    </form>
-  </div>
+<head>
+	<meta charset="UTF-8">
+	<title>ログイン - フリマアプリ</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+	<div class="container">
+		<h1>フリマアプリ</h1>
+		<h2>ログイン</h2>
+
+		<div th:if="${param.error}" class="error-message" style="color: red;">
+			メールアドレスまたはパスワードが不正です。
+		</div>
+		<div th:if="${param.logout}" class="success-message" style="color: green;">
+			ログアウトしました。
+		</div>
+
+		<form th:action="@{/login}" method="post">
+			<p>
+				<label for="username">メールアドレス:</label>
+				<input type="text" id="username" name="username" required>
+			</p>
+			<p>
+				<label for="password">パスワード:</label>
+				<input type="password" id="password" name="password" required>
+			</p>
+			<div class="button-group">
+				<button type="submit" class="button">ログイン</button>
+			</div>
+		</form>
+	</div>
 </body>
+
 </html>

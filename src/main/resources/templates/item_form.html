@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>商品出品・編集 - フリマアプリ</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+  <h1 th:text="${item.id == null ? '商品出品' : '商品編集'}"></h1>
+
+  <form th:action="@{/items/save}" th:object="${item}" method="post" enctype="multipart/form-data">
+    <input type="hidden" th:field="*{id}">
+    <label>商品名</label>
+    <input type="text" th:field="*{name}" required>
+
+    <label>説明</label>
+    <textarea th:field="*{description}"></textarea>
+
+    <label>価格</label>
+    <input type="number" th:field="*{price}" required>
+
+    <label>画像</label>
+    <input type="file" name="imageFile">
+
+    <button type="submit" class="button">保存</button>
+  </form>
+
+  <div class="button-group">
+    <a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
+  </div>
+</div>
+</body>
+</html>

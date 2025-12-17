@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者: 商品管理 - フリマアプリ</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+  <div class="container">
+    <h1>管理者: 商品管理</h1>
+    <p>システム内の全ての商品を管理します。</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>商品名</th>
+          <th>出品者</th>
+          <th>価格</th>
+          <th>カテゴリ</th>
+          <th>ステータス</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="item : ${items}">
+          <td th:text="${item.id}"></td>
+          <td th:text="${item.name}"></td>
+          <td th:text="${item.seller.name}"></td>
+          <td th:text="'¥' + ${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')}"></td>
+          <td th:text="${item.category != null ? item.category.name : '未分類'}"></td>
+          <td th:text="${item.status}"></td>
+          <td>
+            <form th:action="@{/admin/items/{id}/delete(id=${item.id})}"
+                  method="post" style="display:inline;">
+              <button type="submit" class="button danger"
+                      onclick="return confirm('本当にこの商品を削除しますか？');">
+                削除
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(items)}">
+          <td colspan="7">商品がありません。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="button-group">
+      <a th:href="@{/admin/dashboard}" class="button secondary">
+        管理者ダッシュボードに戻る
+      </a>
+    </div>
+  </div>
+</body>
+</html>

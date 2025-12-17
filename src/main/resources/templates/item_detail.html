@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${item.name} + ' - 商品詳細'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+  <h1 th:text="${item.name}"></h1>
+
+  <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+  <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+
+  <div class="item-detail">
+    <img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" alt="商品画像">
+    <p th:text="${item.description}"></p>
+    <p th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
+  </div>
+
+  <div>
+    <form th:if="${!isFavorited}"
+          th:action="@{/items/{id}/favorite(id=${item.id})}" method="post">
+      <button type="submit" class="button">お気に入りに追加</button>
+    </form>
+    <form th:if="${isFavorited}"
+          th:action="@{/items/{id}/unfavorite(id=${item.id})}" method="post">
+      <button type="submit" class="button danger">お気に入り解除</button>
+    </form>
+  </div>
+
+  <h2>チャット</h2>
+  <div class="chat-box">
+    <div th:each="chat : ${chats}"
+         class="chat-message"
+         th:classappend="${chat.sender.email == #authentication.name ? 'my-message' : 'other-message'}">
+      <span th:text="${chat.sender.name}"></span>
+      <span th:text="${#temporals.format(chat.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+      <p th:text="${chat.message}"></p>
+    </div>
+    <p th:if="${#lists.isEmpty(chats)}">まだチャットメッセージはありません。</p>
+  </div>
+
+  <form th:action="@{/chat/{itemId}(itemId=${item.id})}" method="post">
+    <textarea name="message" required></textarea>
+    <button type="submit">送信</button>
+  </form>
+
+  <div class="button-group">
+    <a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
+  </div>
+</div>
+</body>
+</html>
