@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>商品一覧 - フリマアプリ</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+  <div class="container">
+    <h1>商品一覧</h1>
+
+    <div class="main-nav">
+      <a th:href="@{/items/new}" class="button">商品を出品する</a>
+      <a th:href="@{/my-page}" class="button">マイページ</a>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit" class="button secondary">ログアウト</button>
+      </form>
+    </div>
+
+    <form th:action="@{/items}" method="get" class="filter-form" style="margin-bottom: 20px;">
+      <label>キーワード: <input type="text" name="keyword" th:value="${param.keyword}"></label>
+      <label>カテゴリ:
+        <select name="categoryId">
+          <option value="">全て</option>
+          <option th:each="category : ${categories}" 
+                  th:value="${category.id}" 
+                  th:text="${category.name}"
+                  th:selected="${param.categoryId != null and param.categoryId.toString() == category.id.toString()}">
+          </option>
+        </select>
+      </label>
+      <button type="submit" class="button">検索</button>
+    </form>
+
+    <div class="item-grid">
+      <div class="item-card" th:each="item : ${items.content}">
+        <a th:href="@{/items/{id}(id=${item.id})}" style="text-decoration: none; color: inherit;">
+          <img th:src="${item.imageUrl != null ? item.imageUrl : '/images/placeholder.png'}" alt="商品画像">
+          <h3 th:text="${item.name}"></h3>
+          <p class="price" th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
+          <p class="status" th:text="${item.status}"></p>
+        </a>
+      </div>
+      <div th:if="${items.content.isEmpty()}">
+        <p>商品が見つかりませんでした。</p>
+      </div>
+    </div>
+
+    <div class="pagination" style="margin-top: 20px; text-align: center;">
+      <a th:if="${items.hasPrevious()}" th:href="@{/items(page=${items.number - 1}, keyword=${param.keyword}, categoryId=${param.categoryId})}">前へ</a>
+      <span th:text="${items.number + 1} + ' / ' + ${items.totalPages}"></span>
+      <a th:if="${items.hasNext()}" th:href="@{/items(page=${items.number + 1}, keyword=${param.keyword}, categoryId=${param.categoryId})}">次へ</a>
+    </div>
+  </div>
+</body>
+</html>
