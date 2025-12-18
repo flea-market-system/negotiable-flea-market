@@ -37,7 +37,7 @@ public class AdminUserService {
 	}
 
 	// 対象ユーザーの平均レビュー評価を取得(null の場合は 0 として返す)
-	public Double average(Long userId) {
+	public Double averageRating(Long userId) {
 		Double avg = userRepository.averageRatingForUser(userId);
 		return (avg == null) ? 0.0 : avg;
 
