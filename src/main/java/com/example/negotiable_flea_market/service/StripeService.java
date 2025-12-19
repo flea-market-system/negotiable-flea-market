@@ -5,6 +5,12 @@ import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+//　インポートを追記
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
+
 @Service
 public class StripeService {
 	// コンストラクタでシークレットキーを初期化
