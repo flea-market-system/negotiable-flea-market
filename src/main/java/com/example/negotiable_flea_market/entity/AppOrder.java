@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -48,4 +49,9 @@ public class AppOrder {
 	// 追加: Stripe の PaymentIntent ID を保持(決済と注文を 1 対 1 で特定) 
 	@Column(name = "payment_intent_id", unique = true)
 	private String paymentIntentId;
+	
+	// 追加: 注文とレビューは 1対1
+    // mappedBy = "order" は Reviewクラス側のフィールド名
+    @OneToOne(mappedBy = "order")
+    private Review review;
 }

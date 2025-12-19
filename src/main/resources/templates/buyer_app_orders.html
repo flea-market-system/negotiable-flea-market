@@ -1,36 +1,54 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-  <meta charset="UTF-8">
-  <title>購入履歴 - フリマアプリ</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
+	<meta charset="UTF-8">
+	<title>購入履歴 - フリマアプリ</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
-<div class="container">
-  <h1>購入履歴</h1>
-  <p>あなたが購入した商品の一覧です。</p>
+	<div class="container">
+		<h1>購入履歴</h1>
+		<p>あなたが購入した商品の一覧です。</p>
 
-  <table>
-    <thead>
-    <tr><th>商品名</th><th>出品者</th><th>価格</th><th>ステータス</th></tr>
-    </thead>
-    <tbody>
-    <tr th:each="order : ${myOrders}">
-      <td th:text="${order.item.name}"></td>
-      <td th:text="${order.item.seller.name}"></td>
-      <td th:text="'¥' + ${#numbers.formatDecimal(order.price, 0, 'COMMA', 0, 'POINT')}"></td>
-      <td th:text="${order.status}"></td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(myOrders)}">
-      <td colspan="4">購入した商品はありません。</td>
-    </tr>
-    </tbody>
-  </table>
+		<table>
+			<thead>
+				<tr>
+					<th>商品名</th>
+					<th>出品者</th>
+					<th>価格</th>
+					<th>ステータス</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="order : ${myOrders}">
+					<td th:text="${order.item.name}"></td>
+					<td th:text="${order.item.seller.name}"></td>
+					<td th:text="'¥' + ${#numbers.formatDecimal(order.price, 0, 'COMMA', 0, 'POINT')}"></td>
+					<td th:text="${order.status}"></td>
 
-  <div class="button-group">
-    <a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
-  </div>
-</div>
+					<td>
+						<a th:if="${(order.status == '購入済' or order.status == '発送済') and order.review == null}"
+						   th:href="@{/reviews/new/{orderId}(orderId=${order.id})}"
+						   class="button small">評価する</a>
+
+						<span th:if="${order.review != null}" style="color: green;">評価済み</span>
+						
+						<span th:if="${order.status == '決済待ち'}" style="color: gray;">決済未完了</span>
+					</td>
+					
+				</tr> <tr th:if="${#lists.isEmpty(myOrders)}">
+					<td colspan="5">購入した商品はありません。</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="button-group">
+			<a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
+		</div>
+	</div>
 </body>
+
 </html>
