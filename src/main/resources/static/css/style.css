@@ -1,0 +1,29 @@
+body {
+ /* 可読性の高いサンセリフ体を優先して指定 */
+ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ /* 画面端にくっつかないよう外周余白 */
+ margin: 0;
+ /* 内側の基本余白を確保 */
+ padding: 20px;
+ /* 薄いグレー青系の背景でカードを浮かせる */
+ background-color: #eef2f7;
+ /* 本文色は濃いグレーで視認性を確保 */
+ color: #333;
+ /* 行間を広めにして読みやすくする */
+ line-height: 1.6;
+}
+/* 中央の白いカード状のコンテナを作る */
+.container {
+ /* 横幅を最大 960px に制限して可読性を上げる */
+ max-width: 960px;
+ /* 余白で上下左右中央寄せ（左右 auto） */
+ margin: 30px auto;
+ /* カードのベース色 */
+ background-color: #ffffff;
+ /* 内側パディングで詰まり防止 */
+ padding: 30px;
+ /* 角丸でやわらかい印象に */
+ border-radius: 10px;
+ /* うっすらしたドロップシャドウで浮かせる */
+ box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
