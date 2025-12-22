@@ -1,55 +1,84 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-  <meta charset="UTF-8">
-  <title th:text="${item.name} + ' - 商品詳細'"></title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
+	<meta charset="UTF-8">
+	<title th:text="${item.name} + ' - 商品詳細'"></title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
-<div class="container">
-  <h1 th:text="${item.name}"></h1>
+	<div class="container">
+		<h1 th:text="${item.name}"></h1>
 
-  <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
-  <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+		<div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+		<div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
 
-  <div class="item-detail">
-    <img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" alt="商品画像">
-    <p th:text="${item.description}"></p>
-    <p th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
-  </div>
+		<div class="item-detail">
+			<img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" alt="商品画像">
+			<p th:text="${item.description}"></p>
+			<p th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
+		</div>
+		
+		<!-- 購入ボタン
+			1.  **送信先 (`th:action`)**:
+			    * `AppOrderController` で定義されている `@PostMapping("/orders/initiate-purchase")` を指定しています。
+			2.  **パラメータ (`name="itemId"`)**:
+			    * コントローラーが `@RequestParam("itemId")` を要求しているため、`input type="hidden"` で商品IDを渡しています。
+			3.  **表示条件 (`th:if`)**:
+			    * `item.status == '出品中'`: 売約済みの商品を買えないようにします。
+			    * `item.seller.email != #authentication.name`: 自分の商品は買えないようにします（`#authentication.name` はログイン中のユーザー名/メールアドレスを取得するThymeleafの機能です）。
 
-  <div>
-    <form th:if="${!isFavorited}"
-          th:action="@{/items/{id}/favorite(id=${item.id})}" method="post">
-      <button type="submit" class="button">お気に入りに追加</button>
-    </form>
-    <form th:if="${isFavorited}"
-          th:action="@{/items/{id}/unfavorite(id=${item.id})}" method="post">
-      <button type="submit" class="button danger">お気に入り解除</button>
-    </form>
-  </div>
+			これで、適切なユーザーにのみ購入ボタンが表示され、ボタンを押すと決済フロー（Stripe連携）が開始されるようになります。
+		-->
+		<div class="purchase-section" style="margin: 20px 0;">
+			<div th:if="${item.status == '出品中' and item.seller.email != #authentication.name}">
+				<form th:action="@{/orders/initiate-purchase}" method="post">
+					<input type="hidden" name="itemId" th:value="${item.id}" />
+					<button type="submit" class="button"
+						style="background-color: #ff9900; color: white; width: 100%; font-size: 1.2em;">購入手続きへ</button>
+				</form>
+			</div>
 
-  <h2>チャット</h2>
-  <div class="chat-box">
-    <div th:each="chat : ${chats}"
-         class="chat-message"
-         th:classappend="${chat.sender.email == #authentication.name ? 'my-message' : 'other-message'}">
-      <span th:text="${chat.sender.name}"></span>
-      <span th:text="${#temporals.format(chat.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
-      <p th:text="${chat.message}"></p>
-    </div>
-    <p th:if="${#lists.isEmpty(chats)}">まだチャットメッセージはありません。</p>
-  </div>
+			<div th:if="${item.status != '出品中'}" class="alert alert-warning" style="color: red; font-weight: bold;">
+				売り切れ
+			</div>
 
-  <form th:action="@{/chat/{itemId}(itemId=${item.id})}" method="post">
-    <textarea name="message" required></textarea>
-    <button type="submit">送信</button>
-  </form>
+			<div th:if="${item.seller.email == #authentication.name}" style="color: gray;">
+				※自分が出品した商品は購入できません
+			</div>
+		</div>
+		<div>
 
-  <div class="button-group">
-    <a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
-  </div>
-</div>
+			<div>
+				<form th:if="${!isFavorited}" th:action="@{/items/{id}/favorite(id=${item.id})}" method="post">
+					<button type="submit" class="button">お気に入りに追加</button>
+				</form>
+				<form th:if="${isFavorited}" th:action="@{/items/{id}/unfavorite(id=${item.id})}" method="post">
+					<button type="submit" class="button danger">お気に入り解除</button>
+				</form>
+			</div>
+
+			<h2>チャット</h2>
+			<div class="chat-box">
+				<div th:each="chat : ${chats}" class="chat-message"
+					th:classappend="${chat.sender.email == #authentication.name ? 'my-message' : 'other-message'}">
+					<span th:text="${chat.sender.name}"></span>
+					<span th:text="${#temporals.format(chat.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+					<p th:text="${chat.message}"></p>
+				</div>
+				<p th:if="${#lists.isEmpty(chats)}">まだチャットメッセージはありません。</p>
+			</div>
+
+			<form th:action="@{/chat/{itemId}(itemId=${item.id})}" method="post">
+				<textarea name="message" required></textarea>
+				<button type="submit">送信</button>
+			</form>
+
+			<div class="button-group">
+				<a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
+			</div>
+		</div>
 </body>
+
 </html>

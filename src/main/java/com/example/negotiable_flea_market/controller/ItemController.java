@@ -70,7 +70,9 @@ public class ItemController {
 
 	}
 
-	// 商品一覧画面の表示(検索・カテゴリ絞り込み・ページングに対応) @GetMapping
+	// 商品一覧画面の表示(検索・カテゴリ絞り込み・ページングに対応)
+	
+	@GetMapping
 	public String listItems(
 			// キーワード検索用パラメータ(任意)
 			@RequestParam(value = "keyword", required = false) String keyword,

@@ -1,15 +1,19 @@
 package com.example.negotiable_flea_market.controller;
 
-import com.example.negotiable_flea_market.entity.User;
-import com.example.negotiable_flea_market.service.ChatService;
-import com.example.negotiable_flea_market.service.ItemService;
-import com.example.negotiable_flea_market.service.UserService;
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.negotiable_flea_market.entity.User;
+import com.example.negotiable_flea_market.service.ChatService;
+import com.example.negotiable_flea_market.service.ItemService;
+import com.example.negotiable_flea_market.service.UserService;
 
 //このクラスが Web リクエストを処理するコントローラであることを示す 
 @Controller
@@ -59,7 +63,8 @@ public class ChatController {
 		.orElseThrow(() -> new RuntimeException("Sender not found")); 
 		// サービスを通じてチャットメッセージを保存・送信処理 
 		chatService.sendMessage(itemId, sender, message);
-		// 同じ商品のチャット画面へリダイレクトし、最新のメッセージ一覧を再表示 
-		return "redirect:/chat/{itemId}"; //"redirect:/chat/{itemId}" をそのまま文字列で返すと Spring のパス変数展開が効かない場合があるため、"redirect:/chat/" + itemId の方が確実です。
+		//  ★修正点：商品詳細ページ（/items/...）へ戻るように変更
+		//	チャット画面 (/chat/id)はisFavoritedを正しく持っていない。
+		return "redirect:/items/" + itemId; 
 	}
 }
