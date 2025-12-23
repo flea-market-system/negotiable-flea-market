@@ -49,7 +49,12 @@
 			<artifactId>cloudinary-http44</artifactId>
 			<version>1.36.0</version>
 		</dependency>
-        
+		
+        <dependency>
+		    <groupId>com.linecorp.bot</groupId>
+		    <artifactId>line-bot-spring-boot-client</artifactId>
+		    <version>8.6.0</version> 
+	    </dependency>
         
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

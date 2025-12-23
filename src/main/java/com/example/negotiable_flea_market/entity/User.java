@@ -36,9 +36,9 @@ public class User {
 	@Column(nullable = false)
 	private String role;
 
-	// LINE Notify のアクセストークン（任意）
-	@Column(name = "line_notify_token")
-	private String lineNotifyToken;
+	// 修正後（カラム名を変えます）
+	@Column(name = "line_user_id")
+	private String lineUserId;
 
 	// 追加: アカウントの有効/無効フラグ。初期値は true(有効) 
 	@Column(nullable = false)
