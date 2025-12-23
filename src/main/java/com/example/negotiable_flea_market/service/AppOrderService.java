@@ -1,21 +1,6 @@
 // サービスのパッケージ
 package com.example.negotiable_flea_market.service;
 
-// 必要なエンティティ/リポジトリ
-import com.example.negotiable_flea_market.entity.AppOrder;
-import com.example.negotiable_flea_market.entity.Item;
-import com.example.negotiable_flea_market.entity.User;
-import com.example.negotiable_flea_market.repository.ItemRepository;
-import com.example.negotiable_flea_market.repository.AppOrderRepository;
-
-// Stripe
-import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
-
-//Spring 注釈
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 //金額・日付・コレクション 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,24 +10,38 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+//Spring 注釈
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+// 必要なエンティティ/リポジトリ
+import com.example.negotiable_flea_market.entity.AppOrder;
+import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.User;
+import com.example.negotiable_flea_market.repository.AppOrderRepository;
+import com.example.negotiable_flea_market.repository.ItemRepository;
+// Stripe
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+
 @Service
 public class AppOrderService {
-	// リポジトリと周辺サービス
+	// メンバ変数 リポジトリと周辺サービス
 	private final AppOrderRepository appOrderRepository;
 	private final ItemRepository itemRepository;
 	private final ItemService itemService;
 	private final StripeService stripeService;
-	private final LineNotifyService lineNotifyService;
+	private final LineBotService lineBotService;
 
 	// 依存注入
 	public AppOrderService(AppOrderRepository appOrderRepository, ItemRepository itemRepository,
-			ItemService itemService, StripeService stripeService, LineNotifyService lineNotifyService) {
+			ItemService itemService, StripeService stripeService, LineBotService lineBotService) {
 		// 各依存をフィールドに保持
 		this.appOrderRepository = appOrderRepository;
 		this.itemRepository = itemRepository;
 		this.itemService = itemService;
 		this.stripeService = stripeService;
-		this.lineNotifyService = lineNotifyService;
+		this.lineBotService = lineBotService;
 	}
 
 	//購入開始:PaymentIntent 作成+注文を“決済待ち”で作成(PaymentIntent ID を保存)
@@ -103,13 +102,13 @@ public class AppOrderService {
 		//保存
 		AppOrder savedOrder = appOrderRepository.save(appOrder);
 		//売り手が Line 通知トークンを持っていれば通知
-		if (savedOrder.getItem().getSeller().getLineNotifyToken() != null) {
+		if (savedOrder.getItem().getSeller().getLineUserId() != null) {
 			String message = String.format("\n 商品が購入されました!\n 商品名: %s\n 購入 者: %s\n 価格: ¥%s",
 					savedOrder.getItem().getName(),
 					savedOrder.getBuyer().getName(),
 					savedOrder.getPrice());
 			//例外は内側で処理してログ出し
-			lineNotifyService.sendMessage(savedOrder.getItem().getSeller().getLineNotifyToken(), message);
+			lineBotService.sendMessage(savedOrder.getItem().getSeller().getLineUserId(), message);
 		}
 		//確定した注文を返す
 		return savedOrder;
@@ -147,14 +146,14 @@ public class AppOrderService {
 		AppOrder savedOrder = appOrderRepository.save(appOrder);
 
 		// 買い手に LINE 通知があれば送信
-		if (savedOrder.getBuyer().getLineNotifyToken() != null) {
+		if (savedOrder.getBuyer().getLineUserId() != null) {
 			String message = String.format(
 					"\n 購入した商品が発送されました！\n 商品名: %s\n 出品者: %s",
 					savedOrder.getItem().getName(),
 					savedOrder.getItem().getSeller().getName());
 			// 送信試行（失敗はログのみ）
-			lineNotifyService.sendMessage(
-					savedOrder.getBuyer().getLineNotifyToken(),
+			lineBotService.sendMessage(
+					savedOrder.getBuyer().getLineUserId(),
 					message);
 		}
 	}

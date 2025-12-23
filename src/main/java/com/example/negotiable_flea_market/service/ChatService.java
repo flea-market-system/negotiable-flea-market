@@ -21,16 +21,16 @@ public class ChatService {
 	// 商品リポジトリの参照
 	private final ItemRepository itemRepository;
 	// LINE 通知サービスの参照
-	private final LineNotifyService lineNotifyService;
+	private final LineBotService lineBotService;
 
 	// 依存性をコンストラクタで注入
 	public ChatService(
 			ChatRepository chatRepository,
 			ItemRepository itemRepository,
-			LineNotifyService lineNotifyService) {
+			LineBotService lineBotService) {
 		this.chatRepository = chatRepository;
 		this.itemRepository = itemRepository;
-		this.lineNotifyService = lineNotifyService;
+		this.lineBotService = lineBotService;
 	}
 
 	// 商品 ID に紐づくチャット履歴を昇順で取得
@@ -63,15 +63,15 @@ public class ChatService {
 		User receiver = item.getSeller();
 
 		// 受信者が通知トークンを設定していれば通知を送る
-		if (receiver != null && receiver.getLineNotifyToken() != null) {
+		if (receiver != null && receiver.getLineUserId() != null) {
 			String notificationMessage = String.format(
 					"\n 商品「%s」に関する新しいメッセージが届きました！\n 送信者: %s\n メッセージ: %s",
 					item.getName(),
 					sender.getName(),
 					message);
 			// LINE Notify へ送信
-			lineNotifyService.sendMessage(
-					receiver.getLineNotifyToken(),
+			lineBotService.sendMessage(
+					receiver.getLineUserId(),
 					notificationMessage);
 		}
 
