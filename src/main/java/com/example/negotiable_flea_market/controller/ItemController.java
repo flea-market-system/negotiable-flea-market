@@ -106,21 +106,29 @@ public class ItemController {
 			// 画面に値を渡すための Model
 			Model model) {
 		// 商品 ID から商品を取得。存在しない場合は一覧へリダイレクト 
-		Optional<Item> item = itemService.getItemById(id);
-		if (item.isEmpty()) {
+		Optional<Item> itemOpt = itemService.getItemById(id);
+		if (itemOpt.isEmpty()) {
 			// 対象商品が存在しない場合は商品一覧へ戻す 
-			return "redirect:/items"; // Item not found
+			return "redirect:/items";
 		}
-		// 取得した商品を Model に格納
-		model.addAttribute("item", item.get());
-		// 対象商品のチャットメッセージ一覧を Model に格納
+		
+		Item item = itemOpt.get(); // 何度も get() するのは大変なので変数に置きます
+		model.addAttribute("item", item);
 		model.addAttribute("chats", chatService.getChatMessagesByItem(id));
 
 		// 出品者の平均評価を取得して、存在する場合のみ Model へ設定 
-		reviewService.getAverageRatingForSeller(item.get().getSeller())
+		reviewService.getAverageRatingForSeller(item.getSeller())
 				// 小数 1 桁でフォーマットして"sellerAverageRating"として渡す 
 				.ifPresent(avg -> model.addAttribute("sellerAverageRating",
 						String.format("%.1f", avg)));
+		
+		boolean isOwner = false;
+        if (userDetails != null) {
+            // ログイン中のメールアドレスと、出品者のメールアドレスが一致するか判定
+            isOwner = item.getSeller().getEmail().equals(userDetails.getUsername());
+        }
+        model.addAttribute("isOwner", isOwner);
+        
 		// ログインユーザーがいる場合のみ、お気に入りフラグを判定 
 		if (userDetails != null) {
 			// ログインユーザーの User エンティティを取得
@@ -128,6 +136,10 @@ public class ItemController {
 					.orElseThrow(() -> new RuntimeException("User not found"));
 			// 現在のユーザーがこの商品をお気に入り登録済みかどうかを判定し Model に渡す 
 			model.addAttribute("isFavorited", favoriteService.isFavorited(currentUser, id));
+		} else {
+			// 未ログイン状態で画面を開くと isFavorited も null になるため、同じエラーが出る可能性があるので追加。
+			// 未ログインなら絶対にお気に入りではないので false を入れる
+            model.addAttribute("isFavorited", false);
 		}
 		//商品詳細画面テンプレートを返却
 		return "item_detail";

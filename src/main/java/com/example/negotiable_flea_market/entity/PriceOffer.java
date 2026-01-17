@@ -1,5 +1,6 @@
 package com.example.negotiable_flea_market.entity;
 
+import java.math.BigDecimal; // ★これを追加
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -41,11 +42,11 @@ public class PriceOffer {
 
     // 申請時点の価格（スナップショット）
     @Column(name = "original_price", nullable = false)
-    private Integer originalPrice;
+    private BigDecimal originalPrice;
 
     // 値下げ希望価格
     @Column(name = "requested_price", nullable = false)
-    private Integer requestedPrice;
+    private BigDecimal requestedPrice;
 
     // ステータス（Enumで管理）
     @Enumerated(EnumType.STRING)

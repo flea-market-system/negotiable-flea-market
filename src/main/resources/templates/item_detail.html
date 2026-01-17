@@ -48,8 +48,47 @@
 				※自分が出品した商品は購入できません
 			</div>
 		</div>
-		<div>
+		<div th:if="${!item.soldOut and !isOwner}" class="mt-3">
+		    
+		    <button type="button" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#offerModal">
+		        値下げを申請する
+		    </button>
 
+		    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+		        <div class="modal-dialog">
+		            <div class="modal-content">
+		                <form th:action="@{/items/{id}/offers(id=${item.id})}" method="post">
+		                    
+		                    <div class="modal-header">
+		                        <h5 class="modal-title" id="offerModalLabel">値下げ申請</h5>
+		                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		                    </div>
+		                    
+		                    <div class="modal-body">
+		                        <p class="text-danger fw-bold">※申請は一度しかできません。取り消しもできません。</p>
+		                        <p>現在の価格: <span th:text="${item.price}"></span>円</p>
+		                        <p>希望価格を入力してください（100円単位）</p>
+		                        
+		                        <div class="input-group mb-3">
+		                            <input type="number" name="requestedPrice" class="form-control" placeholder="例: 1500" required>
+		                            <span class="input-group-text">円</span>
+		                        </div>
+		                        <small class="text-muted">※最大15%OFFまで申請可能です</small>
+		                    </div>
+		                    
+		                    <div class="modal-footer">
+		                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+		                        <button type="submit" class="btn btn-primary">申請する</button>
+		                    </div>
+		                </form>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
+		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+		<div>
 			<div>
 				<form th:if="${!isFavorited}" th:action="@{/items/{id}/favorite(id=${item.id})}" method="post">
 					<button type="submit" class="button">お気に入りに追加</button>

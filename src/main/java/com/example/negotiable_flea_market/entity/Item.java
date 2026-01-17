@@ -53,5 +53,12 @@ public class Item {
 	// 追加: 作成日時。列名を created_at に固定、初期値は現在時刻 
 	@Column(name = "created_at", nullable = false) // New field 
 	private LocalDateTime createdAt = LocalDateTime.now();
-
+	
+	// 追加: Serviceで使う判定ロジック
+	// 「この商品は売り切れですか？」と聞かれたら、Yes/No で答えるメソッド
+    public boolean isSoldOut() {
+        // ステータスが "SOLD_OUT" という文字なら true を返す
+        // ※もしEnumを使っている場合は、 this.status == ItemStatus.SOLD_OUT のように書き換えてください
+        return "SOLD_OUT".equals(this.status);
+    }
 }
