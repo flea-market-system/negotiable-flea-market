@@ -85,6 +85,11 @@
 		        </div>
 		    </div>
 		</div>
+		</div>  <div th:if="${isOwner}" class="mt-3">
+		    <a th:href="@{/items/{id}/offers(id=${item.id})}" class="btn btn-outline-primary w-100">
+		        値下げ申請を確認する
+		    </a>
+		</div>
 
 		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
