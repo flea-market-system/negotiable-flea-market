@@ -118,4 +118,8 @@ public class PriceOfferService {
 
 	}
 
+	public List<PriceOffer> getOffersByItem(Item item) {
+		return priceOfferRepository.findByItemOrderByCreatedAtDesc(item);
+	}
+
 }
