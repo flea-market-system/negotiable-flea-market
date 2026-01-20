@@ -49,6 +49,42 @@
 		<p><strong>メールアドレス:</strong> <span th:text="${user.email}"></span></p>
 		<!-- 役割ラベルと値を表示（USER/ADMIN） -->
 		<p><strong>役割:</strong> <span th:text="${user.role}"></span></p>
+		<!-- 商談が成立したもの一覧 -->
+		<div th:if="${not #lists.isEmpty(winningOffers)}" class="mt-4 mb-5">
+		    <h3 class="text-danger fw-bold border-bottom pb-2">
+		        🎉 商談成立！購入待ちの商品
+		    </h3>
+		    
+		    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+		        <div class="col" th:each="offer : ${winningOffers}">
+		            <a th:href="@{/items/{id}(id=${offer.item.id})}" class="text-decoration-none text-dark">
+		                <div class="card h-100 border-danger shadow-sm">
+		                    <div class="card-body">
+		                        <h5 class="card-title" th:text="${offer.item.name}">商品名</h5>
+		                        
+		                        <div class="d-flex justify-content-between align-items-end">
+		                            <div>
+		                                <p class="mb-0 text-muted small" style="text-decoration: line-through;">
+		                                    ¥<span th:text="${#numbers.formatDecimal(offer.item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+		                                </p>
+		                                <p class="fs-4 fw-bold text-danger mb-0">
+		                                    ¥<span th:text="${#numbers.formatDecimal(offer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+		                                </p>
+		                            </div>
+		                            <span class="badge bg-danger">購入する</span>
+		                        </div>
+		                        
+		                        <div class="mt-2 text-end">
+		                            <small class="text-muted">
+		                                期限: <span th:text="${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></span> まで
+		                            </small>
+		                        </div>
+		                    </div>
+		                </div>
+		            </a>
+		        </div>
+		    </div>
+		</div>
 	</div>
 </body>
 

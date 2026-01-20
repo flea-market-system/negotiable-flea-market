@@ -118,8 +118,14 @@ public class PriceOfferService {
 
 	}
 
+	// アイテムごとのオファーを取り出す
 	public List<PriceOffer> getOffersByItem(Item item) {
 		return priceOfferRepository.findByItemOrderByCreatedAtDesc(item);
+	}
+
+	// 承諾されたオファー一覧を取得
+	public List<PriceOffer> getWinningOffers(User buyer) {
+		return priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
 	}
 
 }

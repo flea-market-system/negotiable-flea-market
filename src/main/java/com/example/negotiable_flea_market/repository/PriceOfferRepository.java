@@ -23,4 +23,7 @@ public interface PriceOfferRepository extends JpaRepository<PriceOffer, Long> {
 	List<PriceOffer> findByBuyerOrderByCreatedAtDesc(User buyer);
 
 	List<PriceOffer> findByItemAndStatus(Item item, OfferStatus status);
+
+	// 承諾された（ACCEPTED）オファーを取り出す
+	List<PriceOffer> findByBuyerAndStatusOrderByUpdatedAtDesc(User buyer, OfferStatus status);
 }
