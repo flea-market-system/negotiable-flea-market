@@ -17,7 +17,24 @@
 		<div class="item-detail">
 			<img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" alt="商品画像">
 			<p th:text="${item.description}"></p>
-			<p th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
+			<div class="mb-3">
+			    <div th:if="${myWinningOffer != null}" class="p-3 mb-2 bg-light border border-success rounded">
+			        <p class="mb-0 text-muted" style="text-decoration: line-through;">
+			            ¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+			        </p>
+			        <p class="fs-2 fw-bold text-danger mb-0">
+			            ¥<span th:text="${#numbers.formatDecimal(myWinningOffer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+			            <span class="fs-6 text-dark">(商談成立！)</span>
+			        </p>
+			        <small class="text-success fw-bold">※あなた専用の価格です。24時間以内に購入してください。</small>
+			    </div>
+
+			    <div th:if="${myWinningOffer == null}">
+			        <p class="fs-4 fw-bold">
+			            ¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+			        </p>
+			    </div>
+			</div>
 		</div>
 		
 		<!-- 購入ボタン
@@ -32,21 +49,46 @@
 			これで、適切なユーザーにのみ購入ボタンが表示され、ボタンを押すと決済フロー（Stripe連携）が開始されるようになります。
 		-->
 		<div class="purchase-section" style="margin: 20px 0;">
-			<div th:if="${item.status == '出品中' and item.seller.email != #authentication.name}">
-				<form th:action="@{/orders/initiate-purchase}" method="post">
-					<input type="hidden" name="itemId" th:value="${item.id}" />
-					<button type="submit" class="button"
-						style="background-color: #ff9900; color: white; width: 100%; font-size: 1.2em;">購入手続きへ</button>
-				</form>
-			</div>
 
-			<div th:if="${item.status != '出品中'}" class="alert alert-warning" style="color: red; font-weight: bold;">
-				売り切れ
-			</div>
+		    <div th:if="${otherWinningOffer}" class="alert alert-secondary text-center">
+		        <h4>🔒 商談中</h4>
+		        <p>他のお客様への値下げ交渉が成立したため、<br>現在この商品は購入できません。</p>
+		    </div>
 
-			<div th:if="${item.seller.email == #authentication.name}" style="color: gray;">
-				※自分が出品した商品は購入できません
-			</div>
+		    <div th:if="${myWinningOffer != null}">
+		        <form th:action="@{/orders/initiate-purchase}" method="post">
+		            <input type="hidden" name="itemId" th:value="${item.id}" />
+		            
+		            <div class="alert alert-success text-center">
+		                <strong>おめでとうございます！</strong><br>
+		                値下げ申請が承諾されました。
+		            </div>
+		            
+		            <button type="submit" class="button"
+		                style="background-color: #dc3545; color: white; width: 100%; font-size: 1.4em; font-weight: bold; border: 2px solid #a71d2a;">
+		                値下げ価格で購入する
+		            </button>
+		        </form>
+		    </div>
+
+		    <div th:if="${item.status == '出品中' and !isOwner and otherWinningOffer == null and myWinningOffer == null}">
+		        <form th:action="@{/orders/initiate-purchase}" method="post">
+		            <input type="hidden" name="itemId" th:value="${item.id}" />
+		            <button type="submit" class="button"
+		                style="background-color: #ff9900; color: white; width: 100%; font-size: 1.2em;">
+		                購入手続きへ
+		            </button>
+		        </form>
+		    </div>
+
+		    <div th:if="${item.status != '出品中'}" class="alert alert-warning text-center" style="color: red; font-weight: bold;">
+		        SOLD OUT (売り切れ)
+		    </div>
+
+		    <div th:if="${isOwner}" class="text-center text-muted border p-2">
+		        ※自分が出品した商品は購入できません
+		    </div>
+
 		</div>
 		<div th:if="${!item.soldOut and !isOwner}" class="mt-3">
 		    

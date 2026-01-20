@@ -20,7 +20,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.negotiable_flea_market.entity.Category;
 import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.PriceOffer;
 import com.example.negotiable_flea_market.entity.User;
+import com.example.negotiable_flea_market.enums.OfferStatus;
+import com.example.negotiable_flea_market.repository.PriceOfferRepository; // ★追加
 import com.example.negotiable_flea_market.service.CategoryService;
 import com.example.negotiable_flea_market.service.ChatService;
 import com.example.negotiable_flea_market.service.FavoriteService;
@@ -46,6 +49,7 @@ public class ItemController {
 	private final FavoriteService favoriteService;
 	// レビュー(評価)情報を扱うサービス
 	private final ReviewService reviewService; // Declare ReviewService
+	private final PriceOfferRepository priceOfferRepository;
 
 	// 必要なサービスをコンストラクタインジェクションで受け取る 
 	public ItemController(
@@ -54,7 +58,8 @@ public class ItemController {
 			UserService userService,
 			ChatService chatService,
 			FavoriteService favoriteService,
-			ReviewService reviewService) {
+			ReviewService reviewService,
+			PriceOfferRepository priceOfferRepository) {
 		// 商品サービスをフィールドへ設定
 		this.itemService = itemService;
 		// カテゴリサービスをフィールドへ設定
@@ -67,11 +72,12 @@ public class ItemController {
 		this.favoriteService = favoriteService;
 		// レビューサービスをフィールドへ設定
 		this.reviewService = reviewService; // Initialize ReviewService
+		this.priceOfferRepository = priceOfferRepository;
 
 	}
 
 	// 商品一覧画面の表示(検索・カテゴリ絞り込み・ページングに対応)
-	
+
 	@GetMapping
 	public String listItems(
 			// キーワード検索用パラメータ(任意)
@@ -99,49 +105,64 @@ public class ItemController {
 	// 商品詳細画面の表示(チャット・お気に入り・出品者評価などを含む) 
 	@GetMapping("/{id}")
 	public String showItemDetail(
-			// パスパラメータから商品 ID を取得
 			@PathVariable("id") Long id,
-			// ログインユーザー情報(未ログインの場合は null になり得る) 
 			@AuthenticationPrincipal UserDetails userDetails,
-			// 画面に値を渡すための Model
 			Model model) {
-		// 商品 ID から商品を取得。存在しない場合は一覧へリダイレクト 
+
 		Optional<Item> itemOpt = itemService.getItemById(id);
 		if (itemOpt.isEmpty()) {
-			// 対象商品が存在しない場合は商品一覧へ戻す 
 			return "redirect:/items";
 		}
-		
-		Item item = itemOpt.get(); // 何度も get() するのは大変なので変数に置きます
+
+		Item item = itemOpt.get();
 		model.addAttribute("item", item);
 		model.addAttribute("chats", chatService.getChatMessagesByItem(id));
 
-		// 出品者の平均評価を取得して、存在する場合のみ Model へ設定 
+		// 出品者の評価
 		reviewService.getAverageRatingForSeller(item.getSeller())
-				// 小数 1 桁でフォーマットして"sellerAverageRating"として渡す 
-				.ifPresent(avg -> model.addAttribute("sellerAverageRating",
-						String.format("%.1f", avg)));
-		
-		boolean isOwner = false;
-        if (userDetails != null) {
-            // ログイン中のメールアドレスと、出品者のメールアドレスが一致するか判定
-            isOwner = item.getSeller().getEmail().equals(userDetails.getUsername());
-        }
-        model.addAttribute("isOwner", isOwner);
-        
-		// ログインユーザーがいる場合のみ、お気に入りフラグを判定 
+				.ifPresent(avg -> model.addAttribute("sellerAverageRating", String.format("%.1f", avg)));
+
+		// ■■■ ユーザー情報の取得をここにまとめます ■■■
+		User currentUser = null;
 		if (userDetails != null) {
-			// ログインユーザーの User エンティティを取得
-			User currentUser = userService.getUserByEmail(userDetails.getUsername())
-					.orElseThrow(() -> new RuntimeException("User not found"));
-			// 現在のユーザーがこの商品をお気に入り登録済みかどうかを判定し Model に渡す 
+			currentUser = userService.getUserByEmail(userDetails.getUsername()).orElse(null);
+		}
+
+		// isOwner 判定
+		boolean isOwner = false;
+		if (currentUser != null) {
+			isOwner = item.getSeller().getId().equals(currentUser.getId());
+		}
+		model.addAttribute("isOwner", isOwner);
+
+		// isFavorited 判定
+		if (currentUser != null) {
 			model.addAttribute("isFavorited", favoriteService.isFavorited(currentUser, id));
 		} else {
-			// 未ログイン状態で画面を開くと isFavorited も null になるため、同じエラーが出る可能性があるので追加。
-			// 未ログインなら絶対にお気に入りではないので false を入れる
-            model.addAttribute("isFavorited", false);
+			model.addAttribute("isFavorited", false);
 		}
-		//商品詳細画面テンプレートを返却
+
+		// ■■■ ★ここが追加部分：値下げ承諾状況の確認 ■■■
+		// この商品に対して「ACCEPTED（承諾済み）」のオファーがあるか探す
+		List<PriceOffer> acceptedOffers = priceOfferRepository.findByItemAndStatus(item, OfferStatus.ACCEPTED);
+
+		if (!acceptedOffers.isEmpty()) {
+			// リストの先頭（最新）を取得
+			PriceOffer winningOffer = acceptedOffers.get(0);
+
+			// パターンA: ログインしていて、かつ「自分が承諾された本人」である
+			if (currentUser != null && winningOffer.getBuyer().getId().equals(currentUser.getId())) {
+				// 自分用の特別価格を表示するためにモデルに渡す
+				model.addAttribute("myWinningOffer", winningOffer);
+			}
+			// パターンB: それ以外（他人、または未ログイン）
+			else {
+				// 「商談中」と表示するためにフラグを渡す
+				model.addAttribute("otherWinningOffer", true);
+			}
+		}
+		// ■■■ 追加ここまで ■■■
+
 		return "item_detail";
 	}
 
