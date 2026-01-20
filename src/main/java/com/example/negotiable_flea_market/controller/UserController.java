@@ -1,5 +1,7 @@
 package com.example.negotiable_flea_market.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -7,10 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.negotiable_flea_market.entity.PriceOffer;
 import com.example.negotiable_flea_market.entity.User;
 import com.example.negotiable_flea_market.service.AppOrderService;
 import com.example.negotiable_flea_market.service.FavoriteService;
 import com.example.negotiable_flea_market.service.ItemService;
+import com.example.negotiable_flea_market.service.PriceOfferService;
 import com.example.negotiable_flea_market.service.ReviewService; // Add this import 
 import com.example.negotiable_flea_market.service.UserService;
 
@@ -30,10 +34,13 @@ public class UserController {
 	// レビュー(評価)情報取得用サービス
 	private final ReviewService reviewService; // Declare ReviewService
 
+	private final PriceOfferService priceOfferService;
+
 	// コンストラクタインジェクションにより依存サービスを受け取る
 	public UserController(UserService userService, ItemService itemService,
 			AppOrderService appOrderService,
-			FavoriteService favoriteService, ReviewService reviewService) {
+			FavoriteService favoriteService, ReviewService reviewService,
+			PriceOfferService priceOfferService) {
 		// UserService の設定
 		this.userService = userService;
 		// ItemService の設定
@@ -43,7 +50,9 @@ public class UserController {
 		// FavoriteService の設定
 		this.favoriteService = favoriteService;
 		// ReviewService の設定
-		this.reviewService = reviewService; // Initialize ReviewService
+		this.reviewService = reviewService;
+		this.priceOfferService = priceOfferService;
+
 	}
 
 	// マイページ表示(GET /my-page)
@@ -55,6 +64,8 @@ public class UserController {
 
 		// View で利用できるよう Model にログインユーザー情報を追加 
 		model.addAttribute("user", currentUser);
+		List<PriceOffer> winningOffers = priceOfferService.getWinningOffers(currentUser);
+		model.addAttribute("winningOffers", winningOffers);
 		// my_page.html へ遷移
 		return "my_page";
 	}
