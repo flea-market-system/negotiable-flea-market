@@ -252,7 +252,9 @@
                                 <span class="input-group-text">¥</span>
                                 <input type="number" id="requestedPrice" name="requestedPrice" class="form-control form-control-lg" placeholder="例: 1500" required>
                             </div>
-                            <div class="form-text text-danger">※最大15%OFFまで申請可能です</div>
+							<p class="note">
+							    ※最大15%OFF（<span th:text="${#numbers.formatInteger(item.price * 0.85, 1, 'COMMA')}"></span>円）まで申請可能です
+							</p>
                         </div>
                     </div>
                     

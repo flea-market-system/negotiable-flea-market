@@ -1,17 +1,18 @@
 // リポジトリのパッケージ
 package com.example.negotiable_flea_market.repository;
 
-//エンティティと関連型の import
-import com.example.negotiable_flea_market.entity.AppOrder;
-import com.example.negotiable_flea_market.entity.User; 
+//コレクションや Optional 用 
+import java.util.List;
+import java.util.Optional;
+
 //Spring Data JPA の import
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-
-//コレクションや Optional 用 
-import java.util.List; 
-import java.util.Optional;
+//エンティティと関連型の import
+import com.example.negotiable_flea_market.entity.AppOrder;
+import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.User;
 
 
 @Repository
@@ -26,4 +27,6 @@ public interface AppOrderRepository extends JpaRepository<AppOrder, Long> {
     // ★ <追加> : Stripeの決済ID (payment_intent_id) で注文を検索
     // 決済完了処理(completePurchase)で必ず使用します
     Optional<AppOrder> findByPaymentIntentId(String paymentIntentId);
+ // ★追加: 既存の「決済待ち」データを検索できるよう、「この商品」を「この人」が「このステータス」ですでに注文しているか探すメソッド
+    Optional<AppOrder> findByItemAndBuyerAndStatus(Item item, User buyer, String status);
 }
