@@ -17,9 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 // 必要なエンティティ/リポジトリ
 import com.example.negotiable_flea_market.entity.AppOrder;
 import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.PriceOffer;
 import com.example.negotiable_flea_market.entity.User;
+import com.example.negotiable_flea_market.enums.OfferStatus;
 import com.example.negotiable_flea_market.repository.AppOrderRepository;
 import com.example.negotiable_flea_market.repository.ItemRepository;
+import com.example.negotiable_flea_market.repository.PriceOfferRepository;
 // Stripe
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -32,16 +35,18 @@ public class AppOrderService {
 	private final ItemService itemService;
 	private final StripeService stripeService;
 	private final LineBotService lineBotService;
+	private final PriceOfferRepository priceOfferRepository;
 
 	// 依存注入
 	public AppOrderService(AppOrderRepository appOrderRepository, ItemRepository itemRepository,
-			ItemService itemService, StripeService stripeService, LineBotService lineBotService) {
+			ItemService itemService, StripeService stripeService, LineBotService lineBotService, PriceOfferRepository priceOfferRepository) {
 		// 各依存をフィールドに保持
 		this.appOrderRepository = appOrderRepository;
 		this.itemRepository = itemRepository;
 		this.itemService = itemService;
 		this.stripeService = stripeService;
 		this.lineBotService = lineBotService;
+		this.priceOfferRepository = priceOfferRepository;
 	}
 
 	//購入開始:PaymentIntent 作成+注文を“決済待ち”で作成(PaymentIntent ID を保存)
@@ -50,14 +55,34 @@ public class AppOrderService {
 		// 商品を取得(なければ 400)
 		Item item = itemRepository.findById(itemId)
 				.orElseThrow(() -> new IllegalArgumentException("Item not found"));
-
+		
+		// ★追加ロジック：値下げ価格の適用判定
+        BigDecimal finalPrice = item.getPrice(); // デフォルトは定価
+        String description = "購入: " + item.getName() + finalPrice + "円";
+     // このユーザー宛のACCEPTEDなオファーがあるか探す
+        List<PriceOffer> winningOffers = priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
+        
+        // itemIdが一致するものがあれば、その価格を採用
+        for (PriceOffer offer : winningOffers) {
+            if (offer.getItem().getId().equals(itemId)) {
+            	// ★1. 価格を値下げ価格に上書き
+                finalPrice = offer.getRequestedPrice(); 
+                
+                // ★2. Stripe画面やメールに表示される説明文を変更して、安くなったことをアピール
+                description = "【値下げ適用】" + item.getName() + " (商談成立価格)"+ finalPrice + "円";
+                
+                break; // 見つかったらループ終了
+            }
+        }
+        
 		// すでに売却済みならエラー
 		if (!"出品中".equals(item.getStatus())) {
 			throw new IllegalStateException("Item is not available for purchase.");
 		}
+		
 		// Stripe へ PaymentIntent 作成(JPY は最小単位が 1 円のため create 側で考慮) 
-		PaymentIntent paymentIntent = stripeService.createPaymentIntent(item.getPrice(),
-				"jpy", "購入: " + item.getName());
+		PaymentIntent paymentIntent = stripeService.createPaymentIntent(finalPrice, "jpy", description);
+		
 		// 注文を“決済待ち”で作成し、PaymentIntent ID を確実に保存 
 		AppOrder appOrder = new AppOrder();
 		// 商品を紐付け
@@ -65,7 +90,7 @@ public class AppOrderService {
 		// 買い手を紐付け
 		appOrder.setBuyer(buyer);
 		// 金額を固定
-		appOrder.setPrice(item.getPrice());
+		appOrder.setPrice(finalPrice);
 		// ステータスを決済待ちへ
 		appOrder.setStatus("決済待ち");
 		// PaymentIntent ID を保存(これで後続完了時に 1 件特定できる) 

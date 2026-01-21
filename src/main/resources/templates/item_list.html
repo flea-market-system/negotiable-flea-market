@@ -38,7 +38,10 @@
 					<img th:src="${item.imageUrl != null ? item.imageUrl : '/images/placeholder.png'}" alt="商品画像">
 					<h3 th:text="${item.name}"></h3>
 					<p class="price" th:text="'¥' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></p>
-					<p class="status" th:text="${item.status}"></p>
+					<p class="status">
+					    <span th:if="${item.status == '商談中'}" class="text-danger fw-bold">値下げ交渉中</span>				    
+					    <span th:if="${item.status != '商談中'}" th:text="${item.status}"></span>
+					</p>
 				</a>
 			</div>
 			<div th:if="${items.content.isEmpty()}">
