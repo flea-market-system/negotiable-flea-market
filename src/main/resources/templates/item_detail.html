@@ -8,57 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
-    <style>
-        /* 商品画像のスタイル */
-        .product-image-container {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            overflow: hidden;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-        .product-image {
-            max-width: 100%;
-            max-height: 500px;
-            object-fit: contain;
-        }
-
-        /* チャットのスタイル */
-        .chat-container {
-            max-height: 500px;
-            overflow-y: auto;
-            background-color: #f0f2f5;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .my-message {
-            background-color: #dcf8c6; /* LINE風の緑 */
-            margin-left: auto; /* 右寄せ */
-            border-bottom-right-radius: 0;
-            text-align: left;
-        }
-        .other-message {
-            background-color: #ffffff;
-            margin-right: auto; /* 左寄せ */
-            border-bottom-left-radius: 0;
-            border: 1px solid #e5e5e5;
-        }
-        .chat-time {
-            font-size: 0.75rem;
-            color: #6c757d;
-            margin-top: 2px;
-            display: block;
-            text-align: right;
-        }
-    </style>
 </head>
 
 <body class="bg-light py-4">
