@@ -64,7 +64,14 @@ public class ItemService {
 		// Optional をそのまま返却
 		return itemRepository.findById(id);
 	}
-
+	
+	// ★追加: 主キーで商品を取得 (実体版 - Controllerで必ず存在することを期待する場合に使用)
+	// 見つからない場合は例外を投げるため、呼び出し側で .orElseThrow を書く手間が省けます
+	public Item findById(Long id) {
+		return itemRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("商品が見つかりません ID: " + id));
+	}
+	
 	// 商品保存：必要なら画像を Cloudinary へアップロードして URL を保存
 	public Item saveItem(Item item, MultipartFile imageFile) throws IOException {
 		// 画像が添付されている場合にのみアップロード処理を実行

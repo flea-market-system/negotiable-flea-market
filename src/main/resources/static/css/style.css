@@ -27,3 +27,241 @@ body {
  /* うっすらしたドロップシャドウで浮かせる */
  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+/* 商品グリッドのレイアウト（既存にあれば調整） */
+.item-grid {
+    display: grid;
+    /* カードの最小幅を200pxとし、画面幅に合わせて列数を自動調整 */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* 商品カード自体のスタイル */
+.item-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* 画像が角丸からはみ出ないようにする */
+    transition: transform 0.2s;
+    background: #fff;
+}
+
+.item-card:hover {
+    transform: translateY(-5px); /* ホバー時に少し浮き上がる演出 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ★ここが重要：画像のサイズ制御 */
+.item-card img {
+    width: 100%;       /* 横幅はカード幅いっぱいに */
+    height: 180px;     /* 高さを固定（好きなサイズでOK） */
+    object-fit: cover; /* 比率を崩さず、枠いっぱいにトリミングして表示 */
+    vertical-align: bottom; /* 画像下の微妙な隙間を消す */
+}
+
+/* テキスト周りの調整 */
+.item-card h3 {
+    font-size: 1.1rem;
+    margin: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 長すぎる商品名は「...」にする */
+}
+
+.item-card .price {
+    color: #e63946;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 10px 10px;
+}
+
+.item-card .status {
+    margin: 0 10px 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* --- 商品詳細ページ用スタイル --- */
+
+/* 商品画像エリア */
+.product-image-container {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+.product-image {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+/* チャットエリア */
+.chat-container {
+    max-height: 500px;
+    overflow-y: auto;
+    background-color: #f0f2f5;
+    padding: 20px;
+    border-radius: 10px;
+}
+.chat-bubble {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+.my-message {
+    background-color: #dcf8c6; /* LINE風の緑 */
+    margin-left: auto; /* 右寄せ */
+    border-bottom-right-radius: 0;
+    text-align: left;
+}
+.other-message {
+    background-color: #ffffff;
+    margin-right: auto; /* 左寄せ */
+    border-bottom-left-radius: 0;
+    border: 1px solid #e5e5e5;
+}
+.chat-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 2px;
+    display: block;
+    text-align: right;
+}
+/* --- フォーム画面用スタイル --- */
+
+/* フォーム全体を中央寄せ */
+.item-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 各入力項目のまとまり */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* ラベルのデザイン */
+.form-group label {
+    display: block; /* 改行させる */
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+/* 必須マークのデザイン */
+.required {
+    background-color: #e63946;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* テキストボックス、セレクトボックス等の共通スタイル */
+.form-control {
+    width: 100%; /* 親要素いっぱいに広げる */
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* paddingを含めた幅計算にする */
+    transition: border-color 0.3s;
+}
+
+/* 入力欄にフォーカスが当たったとき */
+.form-control:focus {
+    border-color: rgb(137, 188, 221); /* 青色にして強調 */
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* ファイル入力欄の調整 */
+.form-control-file {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* ボタンエリア */
+.form-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* ボタンのデザイン（未定義の場合用） */
+.button {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: rgb(137, 188, 221);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #357abd;
+}
+
+/* テキストリンクのデザイン */
+.text-link {
+    color: #666;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+}
+.text-link:hover {
+    border-bottom-color: #666;
+}
+/* ナビゲーションエリアのレイアウト調整 */
+.main-nav {
+    display: flex;          /* 要素を横並びにする */
+    flex-wrap: wrap;        /* 画面幅が足りない場合は折り返す */
+    gap: 10px;              /* ボタン同士の間隔を10px空ける */
+    align-items: center;    /* 上下中央揃え（ボタンの高さを合わせる） */
+    margin-bottom: 20px;    /* 下の要素との余白 */
+}
+
+/* フォーム（ログアウトボタンの親要素）の余計な余白を消す */
+.main-nav form {
+    margin: 0;
+    display: flex;          /* フォーム内でも高さを合わせる */
+}
+/* --- マイページ等のヘッダー調整 --- */
+
+/* タイトルと右上のボタンを横並びにするコンテナ */
+.page-header {
+    display: flex;
+    justify-content: space-between; /* 両端に配置 */
+    align-items: center;            /* 上下中央揃え */
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;  /* 区切り線を入れてスッキリさせる */
+    padding-bottom: 10px;
+}
+
+.page-header h1 {
+    margin: 0; /* タイトルの余計な余白を消してボタンと高さを合わせる */
+}
+
+/* 小さめのボタン（ログアウト用） */
+.button.small {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+/* セクション間の余白 */
+.section {
+    margin-bottom: 30px;
+}
+
+/* 上部の余白確保用ユーティリティ */
+.mt-5 {
+    margin-top: 3rem !important;
+}

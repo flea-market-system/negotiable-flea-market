@@ -129,8 +129,8 @@ public class UserController {
 		User currentUser = userService.getUserByEmail(userDetails.getUsername())
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
-		// 自分が投稿したレビュー一覧を Model へ格納
-		model.addAttribute("reviews", reviewService.getReviewsByReviewer(currentUser));
+		// 自分へのレビュー一覧を Model へ格納
+		model.addAttribute("reviews", reviewService.getReviewsBySeller(currentUser));
 		// user_reviews.html へ遷移
 		return "user_reviews";
 	}

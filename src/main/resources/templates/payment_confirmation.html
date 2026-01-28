@@ -11,7 +11,7 @@
 	<title>決済確認 - フリマアプリ</title>
 	<!-- 共通スタイルシートの読み込み -->
 	<link rel="stylesheet" th:href="@{/css/style.css}">
-	<!-- Stripe.js（公開キーで初期化し、Elements を使用） -->
+	<!-- Stripe.js（公開キーで初期化し、Elements を使用） -->s
 	<script src="https://js.stripe.com/v3/"></script>
 </head>
 <!-- 本文開始 -->
@@ -19,10 +19,33 @@
 <body>
 	<!-- レイアウト用の中央コンテナ -->
 	<div class="container">
-		<!-- ページ見出し -->
+		
 		<h1>決済確認</h1>
-		<!-- 操作説明文：この画面で支払いを完了する旨を表示 -->
+
+		<div class="purchase-summary" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+		    <h3 th:text="${itemName}">商品名</h3>
+		    
+		    <div class="price-display">
+		        <span th:unless="${isDiscounted}">
+		            価格: <span th:text="${#numbers.formatInteger(originalPrice, 3, 'COMMA')} + '円'">1,000円</span>
+		        </span>
+
+		        <span th:if="${isDiscounted}" style="color: #e63946; font-weight: bold;">
+		            <span style="text-decoration: line-through; color: #888; font-size: 0.9em; margin-right: 10px;">
+		                [[${#numbers.formatInteger(originalPrice, 3, 'COMMA')}]]円
+		            </span>
+		            <span style="font-size: 1.2em;">
+		                → [[${#numbers.formatInteger(finalPrice, 3, 'COMMA')}]]円
+		            </span>
+		            <span style="background: #e63946; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px;">
+		                商談成立価格
+		            </span>
+		        </span>
+		    </div>
+		</div>
+		
 		<p>以下の内容で決済を完了します。</p>
+		
 		<!-- Stripe Elements の描画ターゲット要素 -->
 		<div id="payment-element"></div>
 		<!-- 決済確定ボタン -->
@@ -38,12 +61,18 @@
 	</div>
 	<!-- 画面内スクリプト（Thymeleaf 変数を JS リテラルに埋め込み） -->
 	<script th:inline="javascript">
+		
+		// /* ... */ で囲むと、エディタは「ここはコメントだな」と無視します。
+		// その後ろに 'null' などのダミー値を置くことで、JSの文法としても正しくなります。
+		// Thymeleafが実行されると、この部分全体が「本物の値」に書き換わります。
+		
 		// サーバから受け取った Stripe 公開キー
-		const stripePublicKey = [[${stripePublicKey}]];
+		const stripePublicKey = /*[[${stripePublicKey}]]*/ 'pk_test_dummy';
 		// サーバサイドで作成された PaymentIntent のクライアントシークレット
-		const clientSecret = [[${clientSecret}]];
+		const clientSecret    = /*[[${clientSecret}]]*/ 'secret_dummy';
 		// 遷移元の商品 ID（戻り導線などに活用）
-		const itemId = [[${itemId}]];
+		const itemId          = /*[[${itemId}]]*/ 0;
+		
 		// Stripe を公開キーで初期化
 		const stripe = Stripe(stripePublicKey);
 		// Elements をクライアントシークレット付きで生成

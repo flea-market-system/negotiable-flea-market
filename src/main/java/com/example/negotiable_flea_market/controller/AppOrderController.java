@@ -1,5 +1,7 @@
 package com.example.negotiable_flea_market.controller;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.negotiable_flea_market.entity.Item;
 import com.example.negotiable_flea_market.entity.User;
 import com.example.negotiable_flea_market.service.AppOrderService;
 import com.example.negotiable_flea_market.service.ItemService;
@@ -68,6 +71,8 @@ public class AppOrderController {
 			redirectAttributes.addFlashAttribute("clientSecret", paymentIntent.getClientSecret());
 			// どの商品に対する決済かを保持するため、itemId も Flash 属性に詰める 
 			redirectAttributes.addFlashAttribute("itemId", itemId);
+			// ★追加: Stripe側で決定された最終決済金額(円)も画面に渡す
+            redirectAttributes.addFlashAttribute("finalPrice", paymentIntent.getAmount());
 			// 支払い確認画面へリダイレクト(Flash 属性が ModelAttribute として引き継がれる) 
 			return "redirect:/orders/confirm-payment";
 		} catch (IllegalStateException | IllegalArgumentException | StripeException e) {
@@ -85,6 +90,8 @@ public class AppOrderController {
 			@ModelAttribute("clientSecret") String clientSecret,
 			// 同じく購入対象 itemId を ModelAttribute として受け取る 
 			@ModelAttribute("itemId") Long itemId,
+			// ★追加: initiatePurchaseから渡された最終価格を受け取る
+            @ModelAttribute("finalPrice") Long finalPrice,
 			// 画面に値を渡すための Model 
 			Model model) {
 
@@ -92,7 +99,20 @@ public class AppOrderController {
 		if (clientSecret == null || itemId == null) {
 			return "redirect:/items"; // Redirect if no payment intent data
 		}
-
+		
+		// ★追加: 商品詳細情報を取得 (商品名や定価を表示するため)
+        // ※ itemServiceに findById 相当のメソッドがある前提です
+        Item item = itemService.findById(itemId); 
+        
+        // ★追加: 定価と決済価格を比較して、値下げされているか判定
+        // StripeのamountはLong型、ItemのpriceはBigDecimal型想定のため変換して比較
+        boolean isDiscounted = item.getPrice().compareTo(BigDecimal.valueOf(finalPrice)) != 0;
+        
+        model.addAttribute("itemName", item.getName());     // 商品名
+        model.addAttribute("originalPrice", item.getPrice()); // 定価
+        model.addAttribute("finalPrice", finalPrice);         // 実際に支払う金額
+        model.addAttribute("isDiscounted", isDiscounted);     // 値下げフラグ(trueなら取り消し線を表示)
+        
 		// テンプレートで Stripe 決済処理を行うために clientSecret を Model に格納 
 		model.addAttribute("clientSecret", clientSecret);
 		// 対象商品の ID も Model に格納
