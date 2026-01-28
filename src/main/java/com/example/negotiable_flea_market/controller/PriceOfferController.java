@@ -1,5 +1,7 @@
 package com.example.negotiable_flea_market.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -11,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.negotiable_flea_market.entity.Item;
+import com.example.negotiable_flea_market.entity.PriceOffer;
 import com.example.negotiable_flea_market.entity.User;
 import com.example.negotiable_flea_market.repository.ItemRepository;
 import com.example.negotiable_flea_market.service.PriceOfferService;
 import com.example.negotiable_flea_market.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -95,4 +99,30 @@ public class PriceOfferController {
 		// ここではHTTPヘッダーのRefererを使う手もあります。今回はシンプルにトップへ戻します）
 		return "redirect:/";
 	}
+	
+	// マイページ - 値下げ申請管理画面
+    @GetMapping("/my-page/offers")
+    public String showMyOffers(
+            @RequestParam(name = "tab", defaultValue = "outgoing") String tab, // outgoing:送信済み, incoming:受信
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+        
+        User currentUser = userService.getUserByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<PriceOffer> offers;
+        
+        if ("incoming".equals(tab)) {
+            // 自分宛ての申請（受信）
+            offers = priceOfferService.getOffersBySeller(currentUser);
+        } else {
+            // 自分が送信した申請（送信）
+            offers = priceOfferService.getOffersByBuyer(currentUser);
+        }
+
+        model.addAttribute("offers", offers);
+        model.addAttribute("currentTab", tab); // ビューでタブのアクティブ判定に使用
+
+        return "my_offers";
+    }
 }

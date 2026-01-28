@@ -127,5 +127,15 @@ public class PriceOfferService {
 	public List<PriceOffer> getWinningOffers(User buyer) {
 		return priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
 	}
+	
+	// 自分が出した申請を取得
+    public List<PriceOffer> getOffersByBuyer(User buyer) {
+        return priceOfferRepository.findByBuyerOrderByCreatedAtDesc(buyer);
+    }
+
+    // 自分宛てに来た申請を取得
+    public List<PriceOffer> getOffersBySeller(User seller) {
+        return priceOfferRepository.findByItem_SellerOrderByCreatedAtDesc(seller);
+    }
 
 }

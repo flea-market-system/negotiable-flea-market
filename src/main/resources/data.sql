@@ -27,7 +27,7 @@ VALUES
  1500.00,
  (SELECT id FROM category WHERE name = '本'),
  '出品中',
- NULL
+ '/images/book_gijutsusyo_ai.png'
  ),
  -- イヤホン（カテゴリ：家電、出品中）
  (
@@ -37,7 +37,7 @@ VALUES
  8000.00,
  (SELECT id FROM category WHERE name = '家電'),
  '出品中',
- NULL
+ '/images/music_earphone_true_wireless_case.png'
  );
  
  

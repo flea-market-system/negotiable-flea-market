@@ -175,7 +175,7 @@ body {
 
 /* 入力欄にフォーカスが当たったとき */
 .form-control:focus {
-    border-color: #4a90e2; /* 青色にして強調 */
+    border-color: rgb(137, 188, 221); /* 青色にして強調 */
     outline: none;
     box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
 }
@@ -196,7 +196,7 @@ body {
 .button {
     display: inline-block;
     padding: 12px 30px;
-    background-color: #4a90e2;
+    background-color: rgb(137, 188, 221);
     color: white;
     border: none;
     border-radius: 6px;
