@@ -46,14 +46,21 @@
 				</div>
 
 				<div th:if="${offer.status.name() == 'ACCEPTED'}">
-					<span class="text-success fw-bold">承諾済み（取引中）</span>
-					<br>
-					<small th:text="'期限: ' + ${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></small>
+				    <span class="text-success fw-bold">承諾済み（取引中）</span>
+				    <br>
+				    <small th:text="'期限: ' + ${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></small>
+				</div>
+
+				<div th:if="${offer.status.name() == 'EXPIRED'}">
+				    <span class="text-danger fw-bold">期限切れ（失効）</span>
+				    <br>
+				    <small class="text-muted" th:text="'失効日時: ' + ${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></small>
 				</div>
 
 				<div th:if="${offer.status.name() == 'REJECTED'}">
-					<span class="text-muted">拒否済み</span>
+				    <span class="text-muted">拒否済み</span>
 				</div>
+				
 			</div>
 		</div>
 	</div>

@@ -4,12 +4,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 //★以下の2つのインポートを追加してください
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
 
 @SpringBootApplication
+@EnableScheduling
 public class NegotiableFleaMarketApplication {
 
 	public static void main(String[] args) {
