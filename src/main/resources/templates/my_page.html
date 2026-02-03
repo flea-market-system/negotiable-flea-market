@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 	<meta charset="UTF-8">
 	<title>マイページ - フリマアプリ</title>
 	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
 	<div class="container">
 		<div class="page-header">
@@ -32,42 +34,54 @@
 			<p><strong>役割:</strong> <span th:text="${user.role}"></span></p>
 		</div>
 
+		<!-- 商談成立した商品のセクション -->
 		<div th:if="${not #lists.isEmpty(winningOffers)}" class="mt-4 mb-5">
-		    <h3 class="text-danger fw-bold border-bottom pb-2">
-		        🎉 商談成立！購入待ちの商品
-		    </h3>
-		    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
-		        <div class="col" th:each="offer : ${winningOffers}">
-		            <a th:href="@{/items/{id}(id=${offer.item.id})}" class="text-decoration-none text-dark">
-		                <div class="card h-100 border-danger shadow-sm">
-		                    <div class="card-body">
-		                        <h5 class="card-title" th:text="${offer.item.name}">商品名</h5>
-		                        <div class="d-flex justify-content-between align-items-end">
-		                            <div>
-		                                <p class="mb-0 text-muted small" style="text-decoration: line-through;">
-		                                    ¥<span th:text="${#numbers.formatDecimal(offer.item.price, 0, 'COMMA', 0, 'POINT')}"></span>
-		                                </p>
-		                                <p class="fs-4 fw-bold text-danger mb-0">
-		                                    ¥<span th:text="${#numbers.formatDecimal(offer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
-		                                </p>
-		                            </div>
-		                            <span class="badge bg-danger">購入する</span>
-		                        </div>
-		                        <div class="mt-2 text-end">
-		                            <small class="text-muted">
-		                                期限: <span th:text="${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></span> まで
-		                            </small>
-		                        </div>
-		                    </div>
-		                </div>
-		            </a>
-		        </div>
-		    </div>
-		</div>
+			<h2 style="color: #d9534f; border-bottom: 2px solid #d9534f; padding-bottom: 10px; margin-bottom: 20px;">
+				🎉 商談成立！購入待ちの商品
+			</h2>
 
+			<div class="item-grid">
+				<div class="item-card" th:each="offer : ${winningOffers}">
+					<a th:href="@{/items/{id}(id=${offer.item.id})}" style="text-decoration: none; color: inherit;">
+						<!-- 商品画像 -->
+						<img th:src="${offer.item.imageUrl != null ? offer.item.imageUrl : '/images/placeholder.png'}"
+							alt="商品画像">
+
+						<!-- 商品名 -->
+						<h3 th:text="${offer.item.name}"></h3>
+
+						<!-- 価格表示（元の価格を打ち消し線で表示） -->
+						<p class="price" style="margin-bottom: 5px;">
+							<span style="text-decoration: line-through; color: #999; font-size: 0.8em;">
+								¥<span
+									th:text="${#numbers.formatDecimal(offer.item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+							</span>
+							<br>
+							<span style="color: #d9534f; font-weight: bold;">
+								¥<span
+									th:text="${#numbers.formatDecimal(offer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+							</span>
+						</p>
+
+						<!-- ステータスと期限 -->
+						<p class="status">
+							<span
+								style="background-color: #d9534f; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;">
+								商談成立
+							</span>
+							<br>
+							<small style="font-size: 0.7rem; color: #666; display: block; mt-1">
+								期限: <span th:text="${#temporals.format(offer.holdsUntil, 'MM/dd HH:mm')}"></span> まで
+							</small>
+						</p>
+					</a>
+				</div>
+			</div>
+		</div>
 		<div class="button-group mt-5">
 			<a th:href="@{/items}" class="button secondary">商品一覧に戻る</a>
 		</div>
 	</div>
 </body>
+
 </html>
