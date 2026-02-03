@@ -21,7 +21,6 @@ import com.example.negotiable_flea_market.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Controller
 @RequiredArgsConstructor
 public class PriceOfferController {
@@ -99,30 +98,49 @@ public class PriceOfferController {
 		// ここではHTTPヘッダーのRefererを使う手もあります。今回はシンプルにトップへ戻します）
 		return "redirect:/";
 	}
-	
+
+	// 拒否ボタンが押された時の処理
+	@PostMapping("/offers/{offerId}/reject")
+	public String rejectOffer(@PathVariable("offerId") Long offerId,
+			@AuthenticationPrincipal UserDetails userDetails,
+			RedirectAttributes redirectAttributes) {
+		try {
+			User seller = userService.getUserByEmail(userDetails.getUsername()).orElseThrow();
+
+			// Serviceの拒否処理を呼び出す
+			priceOfferService.rejectOffer(offerId, seller);
+
+			redirectAttributes.addFlashAttribute("successMessage", "申請を拒否しました。");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "エラー: " + e.getMessage());
+		}
+		// 元の画面（トップ等）へ戻る
+		return "redirect:/";
+	}
+
 	// マイページ - 値下げ申請管理画面
-    @GetMapping("/my-page/offers")
-    public String showMyOffers(
-            @RequestParam(name = "tab", defaultValue = "outgoing") String tab, // outgoing:送信済み, incoming:受信
-            @AuthenticationPrincipal UserDetails userDetails,
-            Model model) {
-        
-        User currentUser = userService.getUserByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+	@GetMapping("/my-page/offers")
+	public String showMyOffers(
+			@RequestParam(name = "tab", defaultValue = "outgoing") String tab, // outgoing:送信済み, incoming:受信
+			@AuthenticationPrincipal UserDetails userDetails,
+			Model model) {
 
-        List<PriceOffer> offers;
-        
-        if ("incoming".equals(tab)) {
-            // 自分宛ての申請（受信）
-            offers = priceOfferService.getOffersBySeller(currentUser);
-        } else {
-            // 自分が送信した申請（送信）
-            offers = priceOfferService.getOffersByBuyer(currentUser);
-        }
+		User currentUser = userService.getUserByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
-        model.addAttribute("offers", offers);
-        model.addAttribute("currentTab", tab); // ビューでタブのアクティブ判定に使用
+		List<PriceOffer> offers;
 
-        return "my_offers";
-    }
+		if ("incoming".equals(tab)) {
+			// 自分宛ての申請（受信）
+			offers = priceOfferService.getOffersBySeller(currentUser);
+		} else {
+			// 自分が送信した申請（送信）
+			offers = priceOfferService.getOffersByBuyer(currentUser);
+		}
+
+		model.addAttribute("offers", offers);
+		model.addAttribute("currentTab", tab); // ビューでタブのアクティブ判定に使用
+
+		return "my_offers";
+	}
 }
