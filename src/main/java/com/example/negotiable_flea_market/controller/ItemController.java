@@ -135,11 +135,16 @@ public class ItemController {
 		}
 		model.addAttribute("isOwner", isOwner);
 
+		//isFavorited判定も値下げ申請済み判定も、どちらの判定もログイン中のユーザー（currentUser）が誰であるかを確認するからまとめて書く
 		// isFavorited 判定
 		if (currentUser != null) {
 			model.addAttribute("isFavorited", favoriteService.isFavorited(currentUser, id));
+			// ★追加：この商品に対して既に申請を出しているか（1回限定の判定）
+			boolean hasApplied = priceOfferRepository.existsByItemAndBuyer(item, currentUser);
+			model.addAttribute("hasApplied", hasApplied);
 		} else {
 			model.addAttribute("isFavorited", false);
+			model.addAttribute("hasApplied", false);
 		}
 
 		// ■■■ ★ここが追加部分：値下げ承諾状況の確認 ■■■
@@ -395,5 +400,4 @@ public class ItemController {
 		// 対象商品の詳細画面へ戻る 
 		return "redirect:/items/{id}";
 	}
-
 }
