@@ -17,7 +17,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
-    line_notify_token VARCHAR(255), --追加: line notify
+    line_user_id VARCHAR(255), --line notifyからline user idに変更
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     banned BOOLEAN NOT NULL DEFAULT FALSE, -- BAN 状態
  	ban_reason TEXT, -- BAN 理由

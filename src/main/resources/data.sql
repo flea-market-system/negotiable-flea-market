@@ -1,11 +1,16 @@
-INSERT INTO users (name, email, password, role, enabled)
-VALUES 
--- 出品者：メールとパスワード
- ('出品者 A', 'sellerA@example.com', '{noop}password', 'USER',TRUE),
- -- 購入者：わかりやすいメールに修正（'z'は誤りだと運用上混乱するため）
- ('購入者 B', 'buyerB@example.com', '{noop}password', 'USER',TRUE),
- -- 管理者：管理用アカウント
- ('運営者 C', 'adminC@example.com', '{noop}adminpass', 'ADMIN',TRUE);
+
+INSERT INTO users (name, email, password, role, line_user_id, enabled) VALUES
+-- 出品者 A
+('出品者 A', 'sellerA@example.com', '{noop}password', 'USER', 'U2ff72e8b994e706e9e0b3c112d3a6a44', TRUE),
+
+-- 購入者 B (ここにあなたのIDをセット)
+('購入者 B', 'buyerB@example.com', '{noop}password', 'USER', 'U2ff72e8b994e706e9e0b3c112d3a6a44', TRUE),
+
+-- 管理者 C
+('運営者 C', 'adminC@example.com', '{noop}adminpass', 'ADMIN', 'U2ff72e8b994e706e9e0b3c112d3a6a44', TRUE),
+
+-- 管理者 D
+('運営者 D', 'adminD@example.com', '{noop}adminpass', 'ADMIN', 'U1d6b6bae7cd2a6559ec7e75280c8b389', TRUE);
 
  -- 初期カテゴリー
  INSERT INTO category(name) VALUES

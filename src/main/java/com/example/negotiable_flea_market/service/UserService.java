@@ -57,5 +57,10 @@ public class UserService {
 		// 保存して確定
 		userRepository.save(user);
 	}
+	
+	public List<User> getAdmins() {
+	    // role が 'ADMIN' であるユーザーをリストで返します
+	    return userRepository.findByRole("ADMIN");
+	}
 
 }
