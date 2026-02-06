@@ -66,7 +66,6 @@ public class PriceOfferService {
 		}
 
 		// 100円単位チェック (remainderで割り算の余りを計算)
-		// 0 じゃないならエラー
 		if (requestedPrice.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalArgumentException("申請価格は100円単位で入力してください");
 		}
