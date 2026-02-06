@@ -1,5 +1,5 @@
 package com.example.negotiable_flea_market.repository;
-
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT AVG(r.rating) FROM Review r WHERE r.seller.id = :userId")
 	Double averageRatingForUser(@Param("userId") Long userId);
+	
+	List<User> findByRole(String role);
 
 }

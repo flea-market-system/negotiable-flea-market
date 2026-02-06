@@ -33,18 +33,20 @@ public class AppOrderService {
 	private final AppOrderRepository appOrderRepository;
 	private final ItemRepository itemRepository;
 	private final ItemService itemService;
+	private final UserService userService;
 	private final StripeService stripeService;
 	private final LineBotService lineBotService;
 	private final PriceOfferRepository priceOfferRepository;
 
 	// 依存注入
 	public AppOrderService(AppOrderRepository appOrderRepository, ItemRepository itemRepository,
-			ItemService itemService, StripeService stripeService, LineBotService lineBotService,
+			ItemService itemService, UserService userService, StripeService stripeService, LineBotService lineBotService,
 			PriceOfferRepository priceOfferRepository) {
 		// 各依存をフィールドに保持
 		this.appOrderRepository = appOrderRepository;
 		this.itemRepository = itemRepository;
 		this.itemService = itemService;
+		this.userService = userService;
 		this.stripeService = stripeService;
 		this.lineBotService = lineBotService;
 		this.priceOfferRepository = priceOfferRepository;
@@ -156,6 +158,21 @@ public class AppOrderService {
 			//例外は内側で処理してログ出し
 			lineBotService.sendMessage(savedOrder.getItem().getSeller().getLineUserId(), message);
 		}
+		// ★ 2. 管理者全員への通知を追加
+	    List<User> admins = userService.getAdmins();
+	    String adminMsg = String.format("【管理者通知】商品が購入されました。\n商品: %s\n価格: ¥%s\n購入者: %s",
+	            savedOrder.getItem().getName(),
+	            savedOrder.getPrice(),
+	            savedOrder.getBuyer().getName());
+
+	    for (User admin : admins) {
+	        if (admin.getLineUserId() != null) {
+	            // 出品者本人が管理者の場合、重複を避けるならIDチェックを入れる
+	            if (!admin.getId().equals(savedOrder.getItem().getSeller().getId())) {
+	                lineBotService.sendMessage(admin.getLineUserId(), adminMsg);
+	            }
+	        }
+	    }
 		//確定した注文を返す
 		return savedOrder;
 	}
@@ -202,6 +219,20 @@ public class AppOrderService {
 					savedOrder.getBuyer().getLineUserId(),
 					message);
 		}
+		// ★ 2. 管理者全員への通知を追加
+	    List<User> admins = userService.getAdmins();
+	    String adminMsg = String.format("【管理者通知】商品が発送されました。\n商品: %s\n出品者: %s",
+	            savedOrder.getItem().getName(),
+	            savedOrder.getItem().getSeller().getName());
+
+	    for (User admin : admins) {
+	        if (admin.getLineUserId() != null) {
+	            // 買い手本人が管理者の場合、重複を避ける
+	            if (!admin.getId().equals(savedOrder.getBuyer().getId())) {
+	                lineBotService.sendMessage(admin.getLineUserId(), adminMsg);
+	            }
+	        }
+	    }
 	}
 
 	// ID で 1 件取得

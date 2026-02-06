@@ -1,6 +1,6 @@
 package com.example.negotiable_flea_market.service;
 
-import java.math.BigDecimal; // ★追加
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,141 +20,164 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PriceOfferService {
 
-	private final PriceOfferRepository priceOfferRepository;
-	private final ItemRepository itemRepository;
+    private final PriceOfferRepository priceOfferRepository;
+    private final ItemRepository itemRepository;
+    private final LineBotService lineBotService;
+    private final UserService userService; // ★追加：UserServiceの定義
 
-	@Transactional
-	// ★引数の requestedPrice は Integer のままでOK（画面からは整数で来るため）
-	public void createOffer(Long itemId, User buyer, Integer requestedPriceInt) {
+    @Transactional
+    public void createOffer(Long itemId, User buyer, Integer requestedPriceInt) {
 
-		// 入力値をBigDecimalに変換して扱う
-		BigDecimal requestedPrice = new BigDecimal(requestedPriceInt);
+        BigDecimal requestedPrice = new BigDecimal(requestedPriceInt);
 
-		Item item = itemRepository.findById(itemId)
-				.orElseThrow(() -> new IllegalArgumentException("商品が見つかりません"));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("商品が見つかりません"));
 
-		if (item.isSoldOut()) {
-			throw new IllegalArgumentException("売り切れの商品には申請できません");
-		}
-		if (item.getSeller().getId().equals(buyer.getId())) {
-			throw new IllegalArgumentException("自分の商品には申請できません");
-		}
-		if (priceOfferRepository.existsByItemAndBuyer(item, buyer)) {
-			throw new IllegalArgumentException("この商品には既に申請済みです");
-		}
+        if (item.isSoldOut()) {
+            throw new IllegalArgumentException("売り切れの商品には申請できません");
+        }
+        if (item.getSeller().getId().equals(buyer.getId())) {
+            throw new IllegalArgumentException("自分の商品には申請できません");
+        }
+        if (priceOfferRepository.existsByItemAndBuyer(item, buyer)) {
+            throw new IllegalArgumentException("この商品には既に申請済みです");
+        }
 
-		// 3. 価格ルールのチェック（BigDecimal版）
-		validatePrice(item.getPrice(), requestedPrice);
+        validatePrice(item.getPrice(), requestedPrice);
 
-		// 4. 保存
-		PriceOffer offer = new PriceOffer();
-		offer.setItem(item);
-		offer.setBuyer(buyer);
-		offer.setOriginalPrice(item.getPrice()); // 型が合ったのでエラー消える
-		offer.setRequestedPrice(requestedPrice); // 型が合ったのでエラー消える
-		offer.setStatus(OfferStatus.REQUESTED);
+        PriceOffer offer = new PriceOffer();
+        offer.setItem(item);
+        offer.setBuyer(buyer);
+        offer.setOriginalPrice(item.getPrice());
+        offer.setRequestedPrice(requestedPrice);
+        offer.setStatus(OfferStatus.REQUESTED);
 
-		priceOfferRepository.save(offer);
-	}
+        priceOfferRepository.save(offer);
 
-	// ★BigDecimal用のバリデーションロジック
-	private void validatePrice(BigDecimal originalPrice, BigDecimal requestedPrice) {
-		// 300円未満チェック
-		// compareToは、A < B のとき「-1」を返します
-		if (requestedPrice.compareTo(new BigDecimal("300")) < 0) {
-			throw new IllegalArgumentException("申請価格は300円以上である必要があります");
-		}
+        // --- 通知ロジックの整理 ---
+        User seller = item.getSeller();
 
-		// 100円単位チェック (remainderで割り算の余りを計算)
-		if (requestedPrice.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) != 0) {
-			throw new IllegalArgumentException("申請価格は100円単位で入力してください");
-		}
+        // 1. 出品者本人への通知
+        if (seller.getLineUserId() != null) {
+            String sellerMsg = String.format(
+                "【通知】出品中の商品「%s」に ¥%d の値下げ申請が届きました！",
+                item.getName(),
+                requestedPriceInt
+            );
+            lineBotService.sendMessage(seller.getLineUserId(), sellerMsg);
+        }
 
-		// 元値以上になっていないかチェック
-		if (requestedPrice.compareTo(originalPrice) >= 0) {
-			throw new IllegalArgumentException("現在の価格より安くする必要があります");
-		}
+        // 2. 管理者全員へのLINE通知
+        List<User> admins = userService.getAdmins(); 
+        String adminMsg = String.format("【管理者通知】商品「%s」に新しい値下げ申請がありました。", item.getName());
+        
+        for (User admin : admins) {
+            // 出品者本人が管理者の場合、重複通知を避けるチェックを入れるとよりスマートです
+            if (admin.getLineUserId() != null && !admin.getId().equals(seller.getId())) {
+                lineBotService.sendMessage(admin.getLineUserId(), adminMsg);
+            }
+        }
+    }
 
-		// 15%OFFチェック
-		// originalPrice * 0.85
-		BigDecimal minPrice = originalPrice.multiply(new BigDecimal("0.85"));
+    private void validatePrice(BigDecimal originalPrice, BigDecimal requestedPrice) {
+        if (requestedPrice.compareTo(new BigDecimal("300")) < 0) {
+            throw new IllegalArgumentException("申請価格は300円以上である必要があります");
+        }
 
-		// requestedPrice < minPrice ならエラー
-		if (requestedPrice.compareTo(minPrice) < 0) {
-			throw new IllegalArgumentException("値下げ申請は現在の価格の15%OFFまでです");
-		}
-	}
+        if (requestedPrice.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalArgumentException("申請価格は100円単位で入力してください");
+        }
 
-	@Transactional
-	public void acceptOffer(Long offerId, User seller) {
-		PriceOffer targetOffer = priceOfferRepository.findById(offerId)
-				.orElseThrow(() -> new IllegalArgumentException("申請が見つかりません"));
+        if (requestedPrice.compareTo(originalPrice) >= 0) {
+            throw new IllegalArgumentException("現在の価格より安くする必要があります");
+        }
 
-		if (!targetOffer.getItem().getSeller().getId().equals(seller.getId())) {
-			throw new SecurityException("権限がありません");
-		}
+        BigDecimal minPrice = originalPrice.multiply(new BigDecimal("0.85"));
+        if (requestedPrice.compareTo(minPrice) < 0) {
+            throw new IllegalArgumentException("値下げ申請は現在の価格の15%OFFまでです");
+        }
+    }
 
-		// 3. 既に別の申請が承諾されていないか確認
-		// (Item自体が既にHOLD中かどうかのチェック。今回は簡易的にOfferの状態だけで判断します)
-		if (targetOffer.getStatus() != OfferStatus.REQUESTED) {
-			throw new IllegalArgumentException("この申請は既に処理済みです");
-		}
+    @Transactional
+    public void acceptOffer(Long offerId, User seller) {
+        PriceOffer targetOffer = priceOfferRepository.findById(offerId)
+                .orElseThrow(() -> new IllegalArgumentException("申請が見つかりません"));
+        
+        Item item = targetOffer.getItem();
 
-		targetOffer.setStatus(OfferStatus.ACCEPTED);
-		targetOffer.setHoldsUntil(LocalDateTime.now().plusHours(24)); // 24時間後まで確保
-		priceOfferRepository.save(targetOffer);
+        if (!targetOffer.getItem().getSeller().getId().equals(seller.getId())) {
+            throw new SecurityException("権限がありません");
+        }
 
-		// 5. 副作用：同じ商品の「他の申請」をすべて「拒否」にする
-		List<PriceOffer> otherOffers = priceOfferRepository.findByItemAndStatus(targetOffer.getItem(),
-				OfferStatus.REQUESTED);
-		for (PriceOffer other : otherOffers) {
-			// 自分自身（今承諾したもの）以外をREJECTEDに
-			if (!other.getId().equals(offerId)) {
-				other.setStatus(OfferStatus.REJECTED);
-				priceOfferRepository.save(other);
-			}
-		}
+        if (targetOffer.getStatus() != OfferStatus.REQUESTED) {
+            throw new IllegalArgumentException("この申請は既に処理済みです");
+        }
 
-	}
+        targetOffer.setStatus(OfferStatus.ACCEPTED);
+        targetOffer.setHoldsUntil(LocalDateTime.now().plusHours(24));
+        priceOfferRepository.save(targetOffer);
 
-	@Transactional
-	public void rejectOffer(Long offerId, User seller) {
-		PriceOffer targetOffer = priceOfferRepository.findById(offerId)
-				.orElseThrow(() -> new IllegalArgumentException("申請が見つかりません"));
+        List<PriceOffer> otherOffers = priceOfferRepository.findByItemAndStatus(targetOffer.getItem(),
+                OfferStatus.REQUESTED);
+        for (PriceOffer other : otherOffers) {
+            if (!other.getId().equals(offerId)) {
+                other.setStatus(OfferStatus.REJECTED);
+                priceOfferRepository.save(other);
+            }
+        }
 
-		// 本人の商品に対する申請かチェック
-		if (!targetOffer.getItem().getSeller().getId().equals(seller.getId())) {
-			throw new SecurityException("権限がありません");
-		}
+        // 購入希望者（申請者）へのLINE通知
+        User buyer = targetOffer.getBuyer();
+        if (buyer.getLineUserId() != null) {
+            String message = String.format(
+                "【申請承認】「%s」への値下げ申請が承認されました！24時間以内に購入手続きをお願いします。",
+                targetOffer.getItem().getName()
+            );
+            lineBotService.sendMessage(buyer.getLineUserId(), message);
+        }
+        
+        // 2. 管理者全員へのLINE通知
+        List<User> admins = userService.getAdmins(); 
+        String adminMsg = String.format("【管理者通知】商品「%s」の値下げ申請が承認されました（申請者: %s さん）。", item.getName());
+        
+        for (User admin : admins) {
+            // 出品者本人が管理者の場合、重複通知を避けるチェックを入れるとよりスマートです
+            if (admin.getLineUserId() != null && !admin.getId().equals(seller.getId())) {
+                lineBotService.sendMessage(admin.getLineUserId(), adminMsg);
+            }
+        }
+    }
 
-		// 状態チェック（申請中のもののみ拒否可能）
-		if (targetOffer.getStatus() != OfferStatus.REQUESTED) {
-			throw new IllegalStateException("この申請は既に処理済みです");
-		}
+    @Transactional
+    public void rejectOffer(Long offerId, User seller) {
+        PriceOffer targetOffer = priceOfferRepository.findById(offerId)
+                .orElseThrow(() -> new IllegalArgumentException("申請が見つかりません"));
 
-		// ステータスを拒否に変更
-		targetOffer.setStatus(OfferStatus.REJECTED);
-		priceOfferRepository.save(targetOffer);
-	}
+        if (!targetOffer.getItem().getSeller().getId().equals(seller.getId())) {
+            throw new SecurityException("権限がありません");
+        }
 
-	// アイテムごとのオファーを取り出す
-	public List<PriceOffer> getOffersByItem(Item item) {
-		return priceOfferRepository.findByItemOrderByCreatedAtDesc(item);
-	}
+        if (targetOffer.getStatus() != OfferStatus.REQUESTED) {
+            throw new IllegalStateException("この申請は既に処理済みです");
+        }
 
-	// 承諾されたオファー一覧を取得
-	public List<PriceOffer> getWinningOffers(User buyer) {
-		return priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
-	}
+        targetOffer.setStatus(OfferStatus.REJECTED);
+        priceOfferRepository.save(targetOffer);
+    }
 
-	// 自分が出した申請を取得
-	public List<PriceOffer> getOffersByBuyer(User buyer) {
-		return priceOfferRepository.findByBuyerOrderByCreatedAtDesc(buyer);
-	}
+    public List<PriceOffer> getOffersByItem(Item item) {
+        return priceOfferRepository.findByItemOrderByCreatedAtDesc(item);
+    }
 
-	// 自分宛てに来た申請を取得
-	public List<PriceOffer> getOffersBySeller(User seller) {
-		return priceOfferRepository.findByItem_SellerOrderByCreatedAtDesc(seller);
-	}
+    public List<PriceOffer> getWinningOffers(User buyer) {
+        return priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
+    }
 
+    public List<PriceOffer> getOffersByBuyer(User buyer) {
+        return priceOfferRepository.findByBuyerOrderByCreatedAtDesc(buyer);
+    }
+
+    public List<PriceOffer> getOffersBySeller(User seller) {
+        return priceOfferRepository.findByItem_SellerOrderByCreatedAtDesc(seller);
+    }
 }
