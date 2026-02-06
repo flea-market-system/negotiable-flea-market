@@ -66,7 +66,6 @@ public class PriceOfferService {
 		}
 
 		// 100円単位チェック (remainderで割り算の余りを計算)
-		// 0 じゃないならエラー
 		if (requestedPrice.remainder(new BigDecimal("100")).compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalArgumentException("申請価格は100円単位で入力してください");
 		}
@@ -118,6 +117,26 @@ public class PriceOfferService {
 
 	}
 
+	@Transactional
+	public void rejectOffer(Long offerId, User seller) {
+		PriceOffer targetOffer = priceOfferRepository.findById(offerId)
+				.orElseThrow(() -> new IllegalArgumentException("申請が見つかりません"));
+
+		// 本人の商品に対する申請かチェック
+		if (!targetOffer.getItem().getSeller().getId().equals(seller.getId())) {
+			throw new SecurityException("権限がありません");
+		}
+
+		// 状態チェック（申請中のもののみ拒否可能）
+		if (targetOffer.getStatus() != OfferStatus.REQUESTED) {
+			throw new IllegalStateException("この申請は既に処理済みです");
+		}
+
+		// ステータスを拒否に変更
+		targetOffer.setStatus(OfferStatus.REJECTED);
+		priceOfferRepository.save(targetOffer);
+	}
+
 	// アイテムごとのオファーを取り出す
 	public List<PriceOffer> getOffersByItem(Item item) {
 		return priceOfferRepository.findByItemOrderByCreatedAtDesc(item);
@@ -127,15 +146,15 @@ public class PriceOfferService {
 	public List<PriceOffer> getWinningOffers(User buyer) {
 		return priceOfferRepository.findByBuyerAndStatusOrderByUpdatedAtDesc(buyer, OfferStatus.ACCEPTED);
 	}
-	
-	// 自分が出した申請を取得
-    public List<PriceOffer> getOffersByBuyer(User buyer) {
-        return priceOfferRepository.findByBuyerOrderByCreatedAtDesc(buyer);
-    }
 
-    // 自分宛てに来た申請を取得
-    public List<PriceOffer> getOffersBySeller(User seller) {
-        return priceOfferRepository.findByItem_SellerOrderByCreatedAtDesc(seller);
-    }
+	// 自分が出した申請を取得
+	public List<PriceOffer> getOffersByBuyer(User buyer) {
+		return priceOfferRepository.findByBuyerOrderByCreatedAtDesc(buyer);
+	}
+
+	// 自分宛てに来た申請を取得
+	public List<PriceOffer> getOffersBySeller(User seller) {
+		return priceOfferRepository.findByItem_SellerOrderByCreatedAtDesc(seller);
+	}
 
 }

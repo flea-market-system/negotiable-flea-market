@@ -42,13 +42,15 @@
 						<div class="d-flex justify-content-between align-items-start">
 							<div>
 								<span th:switch="${offer.status.name()}" class="badge mb-2" th:classappend="${
-                                          offer.status.name() == 'ACCEPTED' ? 'bg-success' : 
-                                          (offer.status.name() == 'REJECTED' ? 'bg-secondary' : 'bg-primary')
-                                      }">
+								      offer.status.name() == 'ACCEPTED' ? 'bg-success' : 
+								      (offer.status.name() == 'REJECTED' ? 'bg-secondary' : 
+								      (offer.status.name() == 'EXPIRED' ? 'bg-danger' : 'bg-primary'))
+								  }">
 									<span th:case="'REQUESTED'">申請中</span>
 									<span th:case="'ACCEPTED'">承諾済み</span>
 									<span th:case="'REJECTED'">却下</span>
-								</span>
+									<span th:case="'PURCHASED'">取引終了</span>
+									<span th:case="'EXPIRED'">期限切れ</span> </span>
 
 								<h5 class="card-title mb-1">
 									<a th:href="@{/items/{id}(id=${offer.item.id})}"

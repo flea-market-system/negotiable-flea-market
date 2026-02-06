@@ -38,6 +38,26 @@ VALUES
  (SELECT id FROM category WHERE name = '家電'),
  '出品中',
  '/images/music_earphone_true_wireless_case.png'
+ ),
+  -- くまのぬいぐるみ（カテゴリ：おもちゃ、出品中）
+ (
+ (SELECT id FROM users WHERE email = 'sellerA@example.com'),
+ 'くまのぬいぐるみ',
+ '多少のシミがありますので、ご了承ください。',
+ 2000.00,
+ (SELECT id FROM category WHERE name = 'おもちゃ'),
+ '出品中',
+ '/images/nuigurumi_bear.png'
+ ),
+  -- トレッキングシューズ（カテゴリ：ファッション、出品中）
+ (
+ (SELECT id FROM users WHERE email = 'sellerA@example.com'),
+ 'トレッキングシューズ',
+ '新品未使用品です。',
+ 13000.00,
+ (SELECT id FROM category WHERE name = 'ファッション'),
+ '出品中',
+ '/images/tozan_kutsu.png'
  );
  
  

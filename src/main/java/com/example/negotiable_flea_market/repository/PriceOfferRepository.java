@@ -1,5 +1,6 @@
 package com.example.negotiable_flea_market.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,6 @@ public interface PriceOfferRepository extends JpaRepository<PriceOffer, Long> {
 
 	// 承諾された（ACCEPTED）オファーを取り出す
 	List<PriceOffer> findByBuyerAndStatusOrderByUpdatedAtDesc(User buyer, OfferStatus status);
+    
+	List<PriceOffer> findByStatusAndHoldsUntilBefore(OfferStatus status, LocalDateTime dateTime);
 }

@@ -2,220 +2,303 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${item.name} + ' - 商品詳細'"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${item.name} + ' - 商品詳細'"></title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body class="bg-light py-4">
 
-    <div class="container">
-        
-        <div class="mb-3">
-            <a th:href="@{/items}" class="text-decoration-none text-secondary">
-                <i class="bi bi-chevron-left"></i> 商品一覧に戻る
-            </a>
-        </div>
+	<div class="container">
 
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+		<div class="mb-3">
+			<a th:href="@{/items}" class="text-decoration-none text-secondary">
+				<i class="bi bi-chevron-left"></i> 商品一覧に戻る
+			</a>
+		</div>
 
-        <div class="row g-5">
-            
-            <div class="col-lg-6">
-                <div class="product-image-container p-3">
-                    <img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" 
-                         alt="商品画像" class="product-image">
-                </div>
-            </div>
+		<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+			<i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
 
-            <div class="col-lg-6">
-                <div class="bg-white p-4 rounded shadow-sm h-100">
-                    
-                    <h1 class="fw-bold mb-3" th:text="${item.name}">商品名</h1>
-                    <p class="text-muted mb-4" th:text="${item.description}">商品説明...</p>
+		<div class="row g-5">
 
-                    <hr class="my-4">
+			<div class="col-lg-6">
+				<div class="product-image-container p-3">
+					<img th:src="${item.imageUrl != null ? item.imageUrl : '/images/no-image.png'}" alt="商品画像"
+						class="product-image">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="bg-white p-4 rounded shadow-sm h-100">
 
-                    <div class="mb-4">
-                        <div th:if="${myWinningOffer != null}" class="p-3 bg-danger-subtle border border-danger rounded">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-danger">商談成立！</span>
-                                <small class="text-danger fw-bold">※24時間限定価格</small>
-                            </div>
-                            <p class="mb-0 text-muted text-decoration-line-through small">
-                                ¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                            </p>
-                            <p class="display-4 fw-bold text-danger mb-0">
-                                ¥<span th:text="${#numbers.formatDecimal(myWinningOffer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
-                            </p>
-                        </div>
+					<h1 class="fw-bold mb-3" th:text="${item.name}">商品名</h1>
+					<p class="text-muted mb-4" th:text="${item.description}">商品説明...</p>
 
-                        <div th:if="${myWinningOffer == null}">
-                            <p class="display-5 fw-bold text-dark">
-                                ¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                            </p>
-                        </div>
-                    </div>
+					<hr class="my-4">
 
-                    <div class="d-grid gap-3">
-
-                        <div th:if="${otherWinningOffer}" class="alert alert-secondary text-center mb-0">
-                            <h4><i class="bi bi-lock-fill"></i> 商談中</h4>
-                            <small>他のお客様と交渉中のため、現在購入できません。</small>
-                        </div>
-
-                        <div th:if="${myWinningOffer != null}">
-                            <form th:action="@{/orders/initiate-purchase}" method="post">
-                                <input type="hidden" name="itemId" th:value="${item.id}" />
-                                <button type="submit" class="btn btn-danger btn-lg w-100 py-3 fw-bold shadow">
-                                    <i class="bi bi-cart-check-fill"></i> 値下げ価格で購入する
-                                </button>
-                            </form>
-                        </div>
-
-                        <div th:if="${item.status == '出品中' and !isOwner and otherWinningOffer == null and myWinningOffer == null}">
-                            <form th:action="@{/orders/initiate-purchase}" method="post">
-                                <input type="hidden" name="itemId" th:value="${item.id}" />
-                                <button type="submit" class="btn btn-warning btn-lg w-100 py-3 fw-bold text-white shadow-sm">
-                                    購入手続きへ
-                                </button>
-                            </form>
-                        </div>
-
-                        <div th:if="${item.status != '出品中' and item.status != '商談中'}" class="alert alert-secondary text-center fw-bold text-muted mb-0">
-                            SOLD OUT (売り切れ)
-                        </div>
-
-                        <div th:if="${isOwner}" class="text-center text-muted border p-2 rounded bg-light">
-                            <small>※自分が出品した商品は購入できません</small>
-                        </div>
-
-                        <div th:if="${!item.soldOut and !isOwner and item.status == '出品中' and otherWinningOffer == null and myWinningOffer == null}">
-                            <button type="button" class="btn btn-outline-dark w-100" data-bs-toggle="modal" data-bs-target="#offerModal">
-                                <i class="bi bi-chat-left-text"></i> 値下げ交渉をする
-                            </button>
-                        </div>
-
-                        <div th:if="${isOwner}">
-                            <a th:href="@{/items/{id}/offers(id=${item.id})}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-inbox"></i> 値下げ申請を確認する
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="mt-3 text-end">
-                        <form th:if="${!isFavorited}" th:action="@{/items/{id}/favorite(id=${item.id})}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-link text-decoration-none text-secondary">
-                                <i class="bi bi-heart"></i> お気に入りに追加
-                            </button>
-                        </form>
-                        <form th:if="${isFavorited}" th:action="@{/items/{id}/unfavorite(id=${item.id})}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-link text-decoration-none text-danger">
-                                <i class="bi bi-heart-fill"></i> お気に入り解除
-                            </button>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        <hr class="my-5">
-
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h4 class="mb-0"><i class="bi bi-chat-dots"></i> コメント・質問</h4>
-                    </div>
-                    <div class="card-body">
-                        
-                        <div class="chat-container mb-4">
-                            <div th:if="${#lists.isEmpty(chats)}" class="text-center text-muted py-5">
-                                <p>まだコメントはありません。<br>不明な点があれば質問してみましょう！</p>
-                            </div>
-
-                            <div th:each="chat : ${chats}" 
-                                 th:class="${chat.sender.email == #authentication.name ? 'd-flex flex-column align-items-end' : 'd-flex flex-column align-items-start'}">
-                                
-                                <div class="chat-bubble"
-                                     th:classappend="${chat.sender.email == #authentication.name ? 'my-message' : 'other-message shadow-sm'}">
-                                     
-                                    <strong class="d-block small mb-1" 
-                                            th:text="${chat.sender.name}" 
-                                            th:classappend="${chat.sender.email == #authentication.name ? 'text-end' : ''}"></strong>
-                                    
-                                    <span th:text="${chat.message}" style="white-space: pre-wrap;"></span>
-                                </div>
-                                <span class="chat-time" th:text="${#temporals.format(chat.createdAt, 'MM/dd HH:mm')}"></span>
-                            </div>
-                        </div>
-
-                        <form th:action="@{/chat/{itemId}(itemId=${item.id})}" method="post">
-                            <div class="input-group">
-                                <textarea name="message" class="form-control" rows="2" placeholder="コメントを入力..." required></textarea>
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-send"></i> 送信
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div> <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form th:action="@{/items/{id}/offers(id=${item.id})}" method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="offerModalLabel">値下げ交渉</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    
-                    <div class="modal-body">
-                        <div class="alert alert-warning d-flex align-items-center" role="alert">
-                            <i class="bi bi-exclamation-circle-fill fs-4 me-3"></i>
-                            <div>
-                                <strong>注意:</strong> 申請は一度しかできません。<br>取り消しもできないためご注意ください。
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label text-muted">現在の価格</label>
-                            <div class="fs-4 fw-bold">¥<span th:text="${item.price}"></span></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="requestedPrice" class="form-label">希望価格を入力（100円単位）</label>
-                            <div class="input-group">
-                                <span class="input-group-text">¥</span>
-                                <input type="number" id="requestedPrice" name="requestedPrice" class="form-control form-control-lg" placeholder="例: 1500" required>
-                            </div>
-							<p class="note">
-							    ※最大15%OFF（<span th:text="${#numbers.formatInteger(item.price * 0.85, 1, 'COMMA')}"></span>円）まで申請可能です
+					<div class="mb-4">
+						<div th:if="${myWinningOffer != null}">
+							<div class="p-3 bg-danger-subtle border border-danger rounded mb-2">
+								<div class="d-flex justify-content-between align-items-center">
+									<span class="badge bg-danger">商談成立！</span>
+									<small class="text-danger fw-bold">
+										24時間(<span id="countdown">--:--:--</span>)までの価格
+									</small>
+									<input type="hidden" id="expiryDate" th:value="${myWinningOffer.holdsUntil}">
+								</div>
+							</div>
+							<p class="mb-0 text-muted text-decoration-line-through small">
+								¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
 							</p>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                        <button type="submit" class="btn btn-primary fw-bold">申請する</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+							<p class="display-4 fw-bold text-danger mb-0">
+								¥<span
+									th:text="${#numbers.formatDecimal(myWinningOffer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+							</p>
+						</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+						<div th:if="${myWinningOffer == null}">
+							<p class="display-5 fw-bold text-dark">
+								¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+							</p>
+						</div>
+					</div>
+
+					<div class="d-grid gap-3">
+
+						<div th:if="${otherWinningOffer}" class="alert alert-secondary text-center mb-0">
+							<h4><i class="bi bi-lock-fill"></i> 商談中</h4>
+							<small>他のお客様と交渉中のため、現在購入できません。</small>
+						</div>
+
+						<div
+							th:if="${!item.soldOut and !isOwner and item.status == '出品中' and otherWinningOffer == null}">
+
+							<div th:if="${myWinningOffer == null and !hasApplied}">
+								<button th:if="${item.price >= 300}" type="button" class="btn btn-outline-dark w-100"
+									data-bs-toggle="modal" data-bs-target="#offerModal">
+									<i class="bi bi-chat-left-text"></i> 値下げ交渉をする
+								</button>
+
+								<div th:if="${item.price < 300}">
+									<button type="button" class="btn btn-outline-secondary w-100" disabled>
+										<i class="bi bi-chat-left-text"></i> 値下げ交渉不可
+									</button>
+									<p class="text-center mt-1"><small
+											class="text-muted">※300円未満の商品は値下げ交渉できません</small></p>
+								</div>
+							</div>
+
+							<div th:if="${hasApplied or myWinningOffer != null}">
+								<button type="button" class="btn btn-secondary w-100" disabled>
+									<i class="bi bi-check-circle"></i> 値下げ申請済みです
+								</button>
+								<p class="text-center mt-1"><small class="text-muted">※値下げ申請は1商品につき1回までです</small></p>
+							</div>
+						</div>
+
+						<div th:if="${item.status == '出品中' and !isOwner and otherWinningOffer == null}">
+							<form th:action="@{/orders/initiate-purchase}" method="post">
+								<input type="hidden" name="itemId" th:value="${item.id}" />
+								<button type="submit"
+									class="btn btn-warning btn-lg w-100 py-3 fw-bold text-white shadow-sm">
+									購入手続きへ
+								</button>
+							</form>
+						</div>
+
+						<div th:if="${isOwner}">
+							<a th:href="@{/items/{id}/offers(id=${item.id})}" class="btn btn-outline-primary w-100">
+								<i class="bi bi-inbox"></i> 値下げ申請を確認する
+							</a>
+						</div>
+					</div>
+
+					<div class="mt-3 text-end">
+						<form th:if="${!isFavorited}" th:action="@{/items/{id}/favorite(id=${item.id})}" method="post"
+							class="d-inline">
+							<button type="submit" class="btn btn-link text-decoration-none text-secondary">
+								<i class="bi bi-heart"></i> お気に入りに追加
+							</button>
+						</form>
+						<form th:if="${isFavorited}" th:action="@{/items/{id}/unfavorite(id=${item.id})}" method="post"
+							class="d-inline">
+							<button type="submit" class="btn btn-link text-decoration-none text-danger">
+								<i class="bi bi-heart-fill"></i> お気に入り解除
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<hr class="my-5">
+
+		<div class="row justify-content-center">
+			<div class="col-lg-8">
+				<div class="card shadow-sm">
+					<div class="card-header bg-white py-3">
+						<h4 class="mb-0"><i class="bi bi-chat-dots"></i> コメント・質問</h4>
+					</div>
+					<div class="card-body">
+						<div class="chat-container mb-4">
+							<div th:if="${#lists.isEmpty(chats)}" class="text-center text-muted py-5">
+								<p>まだコメントはありません。<br>不明な点があれば質問してみましょう！</p>
+							</div>
+
+							<div th:each="chat : ${chats}"
+								th:class="${chat.sender.email == #authentication.name ? 'd-flex flex-column align-items-end' : 'd-flex flex-column align-items-start'}">
+
+								<div class="chat-bubble"
+									th:classappend="${chat.sender.email == #authentication.name ? 'my-message' : 'other-message shadow-sm'}">
+
+									<strong class="d-block small mb-1" th:text="${chat.sender.name}"
+										th:classappend="${chat.sender.email == #authentication.name ? 'text-end' : ''}"></strong>
+
+									<span th:text="${chat.message}" style="white-space: pre-wrap;"></span>
+								</div>
+								<span class="chat-time"
+									th:text="${#temporals.format(chat.createdAt, 'MM/dd HH:mm')}"></span>
+							</div>
+						</div>
+						<form th:action="@{/chat/{itemId}(itemId=${item.id})}" method="post">
+							<div class="input-group">
+								<textarea name="message" class="form-control" rows="2" placeholder="コメントを入力..."
+									required></textarea>
+								<button type="submit" class="btn btn-primary px-4">
+									<i class="bi bi-send"></i> 送信
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form th:action="@{/items/{id}/offers(id=${item.id})}" method="post">
+					<div class="modal-header">
+						<h5 class="modal-title" id="offerModalLabel">値下げ交渉</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					    <div class="mb-3">
+					        <label for="requestedPrice" class="form-label">希望価格を入力（100円単位）</label>
+					        <div class="input-group">
+					            <span class="input-group-text">¥</span>
+					            <input type="number" id="requestedPrice" name="requestedPrice"
+					                class="form-control form-control-lg" placeholder="例: 1500" 
+					                step="100" min="300" required>
+					        </div>
+					        <div id="priceHelp" class="form-text mt-2"></div>
+					        
+					        <p class="note">
+					            ※最大15%OFF（<span th:text="${#numbers.formatInteger(item.price * 0.85, 1, 'COMMA')}"></span>円）まで申請可能です
+					        </p>
+					    </div>
+					</div>
+					<div class="modal-footer">
+					    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+					    <button type="submit" id="submitOffer" class="btn btn-primary fw-bold" disabled>申請する</button>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script th:if="${myWinningOffer != null}">
+		function updateCountdown() {
+			const expiryInput = document.getElementById('expiryDate');
+			if (!expiryInput) return;
+
+			// サーバーから渡された期限（ISO形式）をパース
+			const expiryDate = new Date(expiryInput.value).getTime();
+			const now = new Date().getTime();
+			const distance = expiryDate - now;
+
+			const countdownElement = document.getElementById('countdown');
+
+			if (distance < 0) {
+				countdownElement.innerHTML = "期限切れ";
+				return;
+			}
+
+			// 時間・分・秒の計算
+			const hours = Math.floor(distance / (1000 * 60 * 60));
+			const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+			const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+			// 00:00:00 形式で表示
+			countdownElement.innerHTML =
+				String(hours).padStart(2, '0') + "時間" +
+				String(minutes).padStart(2, '0') + "分" +
+				String(seconds).padStart(2, '0') + "秒";
+		}
+
+		// 1秒ごとに更新
+		setInterval(updateCountdown, 1000);
+		updateCountdown(); // 初回実行
+	</script>
+	<script th:inline="javascript">
+	    document.addEventListener('DOMContentLoaded', function() {
+	        const priceInput = document.getElementById('requestedPrice');
+	        const helpText = document.getElementById('priceHelp');
+	        const submitBtn = document.getElementById('submitOffer');
+	        
+	        // Thymeleafから現在の価格を取得
+	        const originalPrice = /*[[${item.price}]]*/ 0;
+	        const minAllowed = Math.ceil(originalPrice * 0.85);
+
+	        priceInput.addEventListener('input', function() {
+	            const val = parseInt(this.value);
+	            let message = "";
+	            let isValid = true;
+
+	            if (isNaN(val)) {
+	                isValid = false;
+	            } else if (val < 300) {
+	                message = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> 300円以上で入力してください</span>';
+	                isValid = false;
+	            } else if (val % 100 !== 0) {
+	                message = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> 100円単位で入力してください</span>';
+	                isValid = false;
+	            } else if (val >= originalPrice) {
+	                message = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> 現在の価格より安くしてください</span>';
+	                isValid = false;
+	            } else if (val < minAllowed) {
+	                message = `<span class="text-danger"><i class="bi bi-exclamation-circle"></i> 値下げ幅が大きすぎます（¥${minAllowed.toLocaleString()}まで）</span>`;
+	                isValid = false;
+	            } else {
+	                const discount = originalPrice - val;
+	                const percent = Math.round((discount / originalPrice) * 100);
+	                message = `<span class="text-success"><i class="bi bi-check-circle"></i> ${percent}%OFF（¥${discount.toLocaleString()}引き）で申請可能です</span>`;
+	            }
+
+	            helpText.innerHTML = message;
+	            submitBtn.disabled = !isValid;
+	            
+	            // 入力枠の視覚的フィードバック
+	            if (isValid) {
+	                this.classList.remove('is-invalid');
+	                this.classList.add('is-valid');
+	            } else {
+	                this.classList.remove('is-valid');
+	                this.classList.add('is-invalid');
+	            }
+	        });
+	    });
+	</script>
 </body>
+
 </html>
