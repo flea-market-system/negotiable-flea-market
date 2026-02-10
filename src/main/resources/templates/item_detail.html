@@ -57,7 +57,7 @@
 								</div>
 							</div>
 							<p class="mb-0 text-muted text-decoration-line-through small">
-								¥<span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+							    ¥<span th:text="${#numbers.formatDecimal(myWinningOffer.originalPrice, 0, 'COMMA', 0, 'POINT')}"></span>
 							</p>
 							<p class="display-4 fw-bold text-danger mb-0">
 								¥<span

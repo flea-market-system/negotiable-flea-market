@@ -46,15 +46,12 @@
 						<!-- 商品画像 -->
 						<img th:src="${offer.item.imageUrl != null ? offer.item.imageUrl : '/images/placeholder.png'}"
 							alt="商品画像">
-
 						<!-- 商品名 -->
 						<h3 th:text="${offer.item.name}"></h3>
-
-						<!-- 価格表示（元の価格を打ち消し線で表示） -->
 						<p class="price" style="margin-bottom: 5px;">
 							<span style="text-decoration: line-through; color: #999; font-size: 0.8em;">
 								¥<span
-									th:text="${#numbers.formatDecimal(offer.item.price, 0, 'COMMA', 0, 'POINT')}"></span>
+									th:text="${#numbers.formatDecimal(offer.originalPrice, 0, 'COMMA', 0, 'POINT')}"></span>
 							</span>
 							<br>
 							<span style="color: #d9534f; font-weight: bold;">
@@ -62,7 +59,6 @@
 									th:text="${#numbers.formatDecimal(offer.requestedPrice, 0, 'COMMA', 0, 'POINT')}"></span>
 							</span>
 						</p>
-
 						<!-- ステータスと期限 -->
 						<p class="status">
 							<span
